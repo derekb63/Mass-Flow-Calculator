@@ -141,3 +141,44 @@ if __name__ == '__main__':
     Pressdata=Pressfile.as_dataframe(time_index=True,absolute_time=False)
     L=reformat(Pressdata,8)
 '''
+
+
+def velocity_calc(PDname):
+    PDfile = TdmsFile(PDname)
+    PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
+    # PDdata.to_pickle('IP.pkl')
+    PD1 = PDdata[PDdata.columns[0::4]]
+    # print(PD1)
+    PD2 = PDdata[PDdata.columns[1::4]]
+    PD3 = PDdata[PDdata.columns[2::4]]
+    PD4 = PDdata[PDdata.columns[3::4]]
+    del PDdata
+    D1 = PD1.diff()
+    D2 = PD2.diff()
+    D3 = PD3.diff()
+    D4 = PD4.diff()
+    del PD1, PD2, PD3, PD4
+    t1 = D1.idxmax()
+    t2 = D2.idxmax()
+    t3 = D3.idxmax()
+    t4 = D4.idxmax()
+    del D1, D2, D3, D4
+    L1 = 0.127762
+    L2 = 0.129337
+    L3 = 0.130175
+
+    T1 = pd.Series(t2.values - t1.values)
+    T2 = pd.Series(t3.values - t2.values)
+    T3 = pd.Series(t4.values - t3.values)
+    V1 = L1/T1.values
+    V2 = L2/T2.values
+    V3 = L3/T3.values
+    R1 = np.sqrt((-.5*(L1/T1.values**2)*1e-6)**2+(1/T1.values*0.003175)**2)
+    R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.003175)**2)
+    R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.003175)**2)
+
+    vel_data = np.transpose(np.vstack((V1, V2, V3, R1, R2, R3)))
+    # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
+    # print (vel_data)
+    # plt.plot(phi, vel_data[:,0], 'x')
+    return vel_data
