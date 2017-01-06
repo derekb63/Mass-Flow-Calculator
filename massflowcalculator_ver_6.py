@@ -4,7 +4,6 @@ Created on Wed Nov  9 19:32:20 2016
 
 @author: beande
 """
-import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -179,6 +178,5 @@ print(dilution)
 Velocity = velocity_calc(PDname)
 print(Velocity)
 
-end=time.time()
+end = time.time()
 print(end-start)
-
