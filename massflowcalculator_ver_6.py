@@ -46,8 +46,8 @@ numPT = 8
 numTC = 5
 gas = ct.Solution('gri30.cti')
 
-
 # Import Temperature File
+
 try:
     Tname
 except NameError:
@@ -60,6 +60,7 @@ except NameError:
 
     if __name__ == '__main__':
         root = Tk()
+        root.attributes("-topmost", True)
         Button(root, text='Temperature Open', command = openFile).pack(fill=X)
         mainloop()                            
 #############################################
@@ -80,6 +81,7 @@ except NameError:
     if __name__ == '__main__':
     
         root = Tk()
+        root.attributes("-topmost", True)
         Button(root, text=' Pressure Open', command = openFile).pack(fill=X)
         mainloop()                            
 #############################################
@@ -101,6 +103,7 @@ except NameError:
     if __name__ == '__main__':
 
         root = Tk()
+        root.attributes("-topmost", True)
         Button(root, text=' Photodiode Open', command = openFile).pack(fill=X)
         mainloop()
 
