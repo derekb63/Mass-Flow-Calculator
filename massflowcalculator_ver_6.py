@@ -43,7 +43,7 @@ cals = [[31230, -125.56],
         [15642, -62.406]]
 # The number of transducers and thermocouples read in the tdms file
 numPT = 8
-numTC = 5
+numTC = 3
 gas = ct.Solution('gri30.cti')
 
 # Import Temperature File
@@ -146,7 +146,7 @@ for Gas in Gases:
         TC = 1
         D_orifice = 0.047  # Diameter of the orifice in INCHES
     elif (Gas == 'NitrousOxide') or (Gas == 'N2O'):
-        ducer = 5
+        ducer = 6  # On PDE ducer = 5 changed to 6 for testing
         D_orifice = 0.142  # Diameter of the orifice in INCHES
         TC = 2
     elif (Gas == 'Nitrogen') or (Gas == 'N2'):
