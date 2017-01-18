@@ -146,7 +146,7 @@ for Gas in Gases:
         TC = 1
         D_orifice = 0.047  # Diameter of the orifice in INCHES
     elif (Gas == 'NitrousOxide') or (Gas == 'N2O'):
-        ducer = 6  # On PDE ducer = 5 changed to 6 for testing
+        ducer = 5  # On PDE ducer = 5 changed to 6 for testing
         D_orifice = 0.142  # Diameter of the orifice in INCHES
         TC = 2
     elif (Gas == 'Nitrogen') or (Gas == 'N2'):
@@ -158,7 +158,7 @@ for Gas in Gases:
         D_orifice = 0.063  # Diameter of the orifice in INCHES
         TC = 3
     else:
-        print('Gas Not Reconized')
+        print('Gas Not Recognized')
 
     for test in range(len(Pressdata)):
 
