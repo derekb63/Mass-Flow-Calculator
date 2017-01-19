@@ -59,6 +59,7 @@ print('Error:', ((k_N2-k_CO2)/k_N2)*100)
 
 A = []
 B = []
+i = 1.01
 comp1 = 'C3H8:1 N2O:10 N2:{0}'.format(j)
 comp2 = 'C3H8:1 N2O:10 CO2:{0}'.format(i)
 CJ_func(comp1, A)
