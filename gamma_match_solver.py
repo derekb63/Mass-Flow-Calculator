@@ -5,10 +5,10 @@ Created on Wed Jan 18 16:10:15 2017
 
 @author: beande
 
-This python code caclulated requred concetration of an unknown diluent based on
-the number of moles used to dilute the fuel and oxidizer mixture. Then the CJ
-detonation velocity is calculated for both mixtures for comparision using the
-SDToolbox
+This python code caclulates the requred concetration of an unknown diluent
+based on the number of moles used to dilute the fuel and oxidizer mixture.
+Then the CJ detonation velocity is calculated for both mixtures for comparision
+using the SDToolbox
 """
 
 from sympy.solvers import solve
