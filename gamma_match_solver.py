@@ -29,14 +29,35 @@ def gamma_finder(comp, T=298, P=101325):
     return k
 
 
-def CJ_func(comp, T=298, P=101325, A=[]):
+def CJ_func(comp, T=298, P=101325, vel_list=[]):
     # Find the CJ velocity for the input composition
     # The input must be in the cantera mole fraction format
     # Example input 'C3H8:1 N2O:10 N2:1 CO2:8'
     [Vel, _] = CJspeed(P, T, comp, 'gri30.cti', 0)
     print(Vel, comp)
-    A.append(Vel)
-    return A
+    vel_list.append(Vel)
+    return vel_list
+
+
+def energy_release(comp, T=298, P=101325):
+    # Caclulate the heat release of the mixture if allowed to go to
+    # equilibrium
+    gas = ct.Solution('gri30.cti')
+    gas.TPX = T, P, comp
+    h_react = gas.enthalpy_mole
+    gas.equilibrate('HP')
+    h_prod = gas.enthalpy_mole
+    return h_react - h_prod
+
+
+def Ideal_CJ(comp, T=298, P=101325):
+    # calculate the ideal CJ velocity for the mixture based on the ideal CJ
+    # detonation equation
+    q = np.abs(energy_release(comp, T, P))
+    print(q)
+    gamma = gamma_finder(comp, T, P)
+    D_CJ = np.sqrt(2*((gamma**2)-1)*q)
+    return D_CJ
 
 
 phi = 1
