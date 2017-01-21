@@ -18,6 +18,7 @@ P_d = 101325                                  # Downstream pressure in kPa
 
 gas = ct.Solution('gri30.xml')
 
+
 def FindFile(text):
     def openFile():
         global Fname
@@ -28,7 +29,7 @@ def FindFile(text):
     root.attributes("-topmost", True)
     Button(root, text=text, command = openFile).pack(fill=X)
     mainloop()     
-    
+
     return Fname
 
 def calibrate(P1, T1, ducer, cals, Gas):
@@ -56,8 +57,8 @@ def calibrate(P1, T1, ducer, cals, Gas):
 
 
 def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg):
-    #finds mass flow rate
-    #two different equations depends on sub/supersonic
+    # finds mass flow rate
+    # two different equations depends on sub/supersonic
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
         m_dot = A_orifice * P_u * k * \
             ((2/(k+1))**((k+1)/(k-1)))**(0.5)\
@@ -70,24 +71,24 @@ def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg):
 
 
 def reformat(data):
-    index = list(data.index)#time
-    labels = list(data.columns)#test_num/channel_num
+    index = list(data.index)     # time
+    labels = list(data.columns)  # test_num/channel_num
 
-    #finds the number of channels recorded in the test
-    #basically looks for the max number in labels, channel_num
-    numChannels=[]
+    # finds the number of channels recorded in the test
+    # basically looks for the max number in labels, channel_num
+    numChannels = []
     for el in labels:
-        x=el.split('/')
+        x = el.split('/')
         x.pop(0)
         x.pop(0)
-        x=x[0]
+        x = x[0]
         if x[-2].isdigit():
-            mynumber=x[-2]
+            mynumber = x[-2]
         if x[-1].isdigit():
-            mynumber+=x[-1]
+            mynumber += x[-1]
         numChannels.append(int(mynumber))
-    numChannels=max(numChannels)+1
-    
+    numChannels = max(numChannels)+1
+
     mybiglist = []
     for _ in range(int(len(labels)/numChannels)):
         mybiglist.append(pd.DataFrame(index=index, columns=[]))

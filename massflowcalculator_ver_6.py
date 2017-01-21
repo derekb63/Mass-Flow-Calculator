@@ -27,7 +27,7 @@ Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
 R = ct.gas_constant / 1000       # Gas constant (kPa m^3/kmol-K)
 P_d = 101325                     # Downstream pressure in kPa
 
-# If you don't want to choose the files
+""" If you don't want to choose the files """
 # Tname  = 'January20\TC.tdms'
 # Pname  = 'January20\PT.tdms'
 # PDname = 'January20\PD.tdms'
@@ -150,7 +150,7 @@ Data = pd.concat([Data, velocity_calc(PDname)], axis=1)
 # Write the data file to the same location as the photodiode data was sourced
 # by creating a new file or appending to the file if it already exists
 
-Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/test1.csv', mode='a')
+Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/testdata.csv', mode='a')
 
 print(Data)
 
