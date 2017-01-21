@@ -42,13 +42,10 @@ cals = [[31230, -125.56],
         [15667, -62.535],
         [15642, -62.406]]
 # The number of transducers and thermocouples read in the tdms file
-<<<<<<< HEAD
 # numPT = 8
 # numTC = 3
-=======
 numPT = 8
 numTC = 3
->>>>>>> 33837a74cbb6870ad0a19326bdd81151f158b2fc
 gas = ct.Solution('gri30.xml')
 
 
