@@ -44,7 +44,7 @@ cals = [[31230, -125.56],
 # The number of transducers and thermocouples read in the tdms file
 numPT = 8
 numTC = 3
-gas = ct.Solution('gri30.cti')
+gas = ct.Solution('gri30.xml')
 
 # Import Temperature File
 

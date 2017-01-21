@@ -15,7 +15,7 @@ from tkinter.filedialog import askopenfilename
 R = ct.gas_constant / 1000                     # Gas constant (kPa m^3/kmol-K)
 P_d = 101325                                  # Downstream pressure in kPa
 
-gas = ct.Solution('gri30.cti')
+gas = ct.Solution('gri30.xml')
 
 
 def calibrate(P1, T1, ducer, cals, Gas):
