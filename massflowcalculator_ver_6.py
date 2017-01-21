@@ -1,3 +1,4 @@
+#! usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov  9 19:32:20 2016
@@ -12,7 +13,8 @@ from nptdms import TdmsFile
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import time
-from functions import reformat, find_M_dot, velocity_calc
+from functions import reformat, find_M_dot, velocity_calc, FindFile
+
 
 start = time.time()
 
@@ -26,11 +28,9 @@ R = ct.gas_constant / 1000       # Gas constant (kPa m^3/kmol-K)
 P_d = 101325                     # Downstream pressure in kPa
 
 # If you don't want to choose the files
-# Tname = 'TC2test.tdms'
-# Pname = 'PT2test.tdms'
-# PDname = 'IP2test.tdms'
-
-
+# Tname  = 'January20\TC.tdms'
+# Pname  = 'January20\PT.tdms'
+# PDname = 'January20\PD.tdms'
 
 # Pressure transducer calibrations
 cals = [[31230, -125.56],
@@ -42,82 +42,41 @@ cals = [[31230, -125.56],
         [15667, -62.535],
         [15642, -62.406]]
 # The number of transducers and thermocouples read in the tdms file
+<<<<<<< HEAD
+# numPT = 8
+# numTC = 3
+=======
 numPT = 8
 numTC = 3
+>>>>>>> 33837a74cbb6870ad0a19326bdd81151f158b2fc
 gas = ct.Solution('gri30.xml')
 
-# Import Temperature File
 
+# Import Temperature File
 try:
     Tname
 except NameError:
-    Tname = "unassigned"
-
-    def openFile():
-        global Tname
-        Tname = askopenfilename()
-        root.destroy()
-
-    if __name__ == '__main__':
-        root = Tk()
-        root.attributes("-topmost", True)
-        Button(root, text='Temperature Open', command = openFile).pack(fill=X)
-        mainloop()                            
-#############################################
-
+    Tname = FindFile('Temperature Open')                     
 # Import Pressure File
-
 try:
     Pname
 except NameError:
-
-    Pname = "unassigned"
-
-    def openFile():
-        global Pname
-        Pname = askopenfilename()
-        root.destroy()
-    
-    if __name__ == '__main__':
-    
-        root = Tk()
-        root.attributes("-topmost", True)
-        Button(root, text=' Pressure Open', command = openFile).pack(fill=X)
-        mainloop()                            
-#############################################
-
+    Pname = FindFile('Pressure Open')
 # Import Photodiode File
-
-# Some stuff to deal with the tkinter window##
 try:
     PDname
 except NameError:
-
-    PDname = "unassigned"
-
-    def openFile():
-        global PDname
-        PDname = askopenfilename()
-        root.destroy()
-
-    if __name__ == '__main__':
-
-        root = Tk()
-        root.attributes("-topmost", True)
-        Button(root, text=' Photodiode Open', command = openFile).pack(fill=X)
-        mainloop()
+    PDname = FindFile('Photodiode Open')
 
 ################################################
 
 Pressfile = TdmsFile(Pname)
 Pressdata = Pressfile.as_dataframe(time_index=True, absolute_time=False)
-# Pressdata.to_pickle('PT.pkl')
-Pressdata = reformat(Pressdata, numPT)
+Pressdata = reformat(Pressdata)
 
 Tempfile = TdmsFile(Tname)
 Tempdata = Tempfile.as_dataframe(time_index=True, absolute_time=False)
-# Tempdata.to_pickle('TC.pkl')
-Tempdata = reformat(Tempdata, numTC)
+Tempdata = reformat(Tempdata)
 numTests = len(Tempdata)
 ##############################################################
 
@@ -134,6 +93,7 @@ print(type(m_dot))
 print(Gas,test)
 print(m_dot)
 print()
+
 '''
 
 # Initialize M_dot
@@ -168,18 +128,25 @@ for Gas in Gases:
         M_dot[Gas][test] = m_dot
 
 # Equivelance Ratio
-phi = 10*np.divide(M_dot[fuel], M_dot[oxidizer])
+phi = 10*np.divide(M_dot[fuel], M_dot[oxidizer]).rename('Phi')
 print('Phi')
 print(phi)
 print()
 # Mass Dilution Ratio
 dilution = np.divide(M_dot[diluent],
-                     M_dot[fuel]+M_dot[oxidizer]+M_dot[diluent])
+                     M_dot[fuel] + M_dot[oxidizer] +
+                     M_dot[diluent]).rename('Diluent')
 print('Dilution Ratio')
 print(dilution)
 
-Velocity = velocity_calc(PDname)
-print(Velocity)
+Data = pd.concat([phi, dilution], axis=1)
 
+del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot, dilution, phi
+
+Velocity = velocity_calc(PDname)
+Data = pd.concat([Data, Velocity], axis=1)
+print(Velocity)
+del Velocity
+Data.to_csv('test1.csv', mode='a')
 end = time.time()
 print(end-start)

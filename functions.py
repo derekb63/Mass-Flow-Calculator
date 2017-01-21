@@ -1,3 +1,4 @@
+#! usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Dec 13 12:17:45 2016
@@ -17,6 +18,18 @@ P_d = 101325                                  # Downstream pressure in kPa
 
 gas = ct.Solution('gri30.xml')
 
+def FindFile(text):
+    def openFile():
+        global Fname
+        Fname = askopenfilename()
+        root.destroy()
+
+    root = Tk()
+    root.attributes("-topmost", True)
+    Button(root, text=text, command = openFile).pack(fill=X)
+    mainloop()     
+    
+    return Fname
 
 def calibrate(P1, T1, ducer, cals, Gas):
     cor_p = P1*cals[ducer][0]+cals[ducer][1]+14.7
@@ -43,7 +56,8 @@ def calibrate(P1, T1, ducer, cals, Gas):
 
 
 def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg):
-    # print(P_u,rho,k,T)
+    #finds mass flow rate
+    #two different equations depends on sub/supersonic
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
         m_dot = A_orifice * P_u * k * \
             ((2/(k+1))**((k+1)/(k-1)))**(0.5)\
@@ -55,10 +69,25 @@ def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg):
     return m_dot
 
 
-def reformat(data, numChannels):
-    index = list(data.index)
-    labels = list(data.columns)
+def reformat(data):
+    index = list(data.index)#time
+    labels = list(data.columns)#test_num/channel_num
 
+    #finds the number of channels recorded in the test
+    #basically looks for the max number in labels, channel_num
+    numChannels=[]
+    for el in labels:
+        x=el.split('/')
+        x.pop(0)
+        x.pop(0)
+        x=x[0]
+        if x[-2].isdigit():
+            mynumber=x[-2]
+        if x[-1].isdigit():
+            mynumber+=x[-1]
+        numChannels.append(int(mynumber))
+    numChannels=max(numChannels)+1
+    
     mybiglist = []
     for _ in range(int(len(labels)/numChannels)):
         mybiglist.append(pd.DataFrame(index=index, columns=[]))
@@ -110,37 +139,14 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
     A_tube = (np.pi/4)*(D_tube*0.0254)**2  # Area of the orifice in m
 
     # Check to see if the pressure transducer data makes sense
-    '''
-    if np.mean(P1)<0.0035:
-    print('This pressure transducer is probably not connected')
-    elif np.mean(P1)>0.020:
-    print('This pressure transducer is probably broken')
-    else:
-    '''
     # Apply the Calibrations to the pressure transducer data
     # print(P1)
     [P_u, T_avg, rho, k_gas, MW] = calibrate(P1, T1, ducer, cals, Gas)
 
     # Mass Flow Calculation
     m_dot = mass_flow(k_gas, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg)
-    '''
-    print('k= '+str(k_gas))
-    print('rho= '+str(rho))
-    print(A_orifice)
-    print(A_tube)
-    print('P_u= '+str(P_u))
-    print('P_d= '+str(P_d))
-    print('T= '+str(T_avg))
-    print(Gas,test)
-    print(m_dot)
-    print()
-    '''
+
     return m_dot
-'''
-if __name__ == '__main__':
-    Pressdata=Pressfile.as_dataframe(time_index=True,absolute_time=False)
-    L=reformat(Pressdata,8)
-'''
 
 
 def velocity_calc(PDname):
@@ -152,6 +158,10 @@ def velocity_calc(PDname):
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
     PD4 = PDdata[PDdata.columns[3::4]]
+    PD1.plot()
+    PD2.plot()
+    PD3.plot()
+    PD4.plot()
     del PDdata
     D1 = PD1.diff()
     D2 = PD2.diff()
@@ -177,7 +187,10 @@ def velocity_calc(PDname):
     R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.003175)**2)
     R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.003175)**2)
 
-    vel_data = np.transpose(np.vstack((V1, V2, V3, R1, R2, R3)))
+    vel_data = pd.DataFrame(np.transpose(
+            np.vstack((V1, V2, V3, R1, R2, R3))))
+    vel_data.columns=['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
+
     # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
     # print (vel_data)
     # plt.plot(phi, vel_data[:,0], 'x')
