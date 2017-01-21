@@ -126,24 +126,33 @@ for Gas in Gases:
 
 # Equivelance Ratio
 phi = 10*np.divide(M_dot[fuel], M_dot[oxidizer]).rename('Phi')
-print('Phi')
-print(phi)
+
 print()
 # Mass Dilution Ratio
 dilution = np.divide(M_dot[diluent],
                      M_dot[fuel] + M_dot[oxidizer] +
                      M_dot[diluent]).rename('Diluent')
-print('Dilution Ratio')
-print(dilution)
+
+
+# Place the equivalence ratio and dilution data into a pandas.DataFrame
+# so that it can be easily managed/saved later
 
 Data = pd.concat([phi, dilution], axis=1)
 
 del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot, dilution, phi
 
-Velocity = velocity_calc(PDname)
-Data = pd.concat([Data, Velocity], axis=1)
-print(Velocity)
-del Velocity
-Data.to_csv('test1.csv', mode='a')
+# Put the velocity and error data into the Data pandas.DataFrame
+# The necessary data is now all in the same place
+
+Data = pd.concat([Data, velocity_calc(PDname)], axis=1)
+
+
+# Write the data file to the same location as the photodiode data was sourced
+# by creating a new file or appending to the file if it already exists
+
+Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/test1.csv', mode='a')
+
+print(Data)
+
 end = time.time()
-print(end-start)
+print('Run Time:', end-start, 'seconds')
