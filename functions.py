@@ -11,6 +11,7 @@ import cantera as ct
 from nptdms import TdmsFile
 from tkinter import *
 from tkinter.filedialog import askopenfilename
+import sys
 
 
 R = ct.gas_constant / 1000                     # Gas constant (kPa m^3/kmol-K)
@@ -176,8 +177,8 @@ def velocity_calc(PDname, method='diff'):
         D3 = PD3
         D4 = PD4
     else:
-        print('The method you have chosen for the velicty calculation is not\
-        reconized. Please select a different method and retry.')
+        sys.exit('The method you have chosen for the velicty calculation is' +
+                 ' not reconized. Please select a different method and retry.')
 
     del PD1, PD2, PD3, PD4
     t1 = D1.idxmax()
@@ -201,7 +202,7 @@ def velocity_calc(PDname, method='diff'):
 
     vel_data = pd.DataFrame(np.transpose(
             np.vstack((V1, V2, V3, R1, R2, R3))))
-    vel_data.columns  = ['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
+    vel_data.columns = ['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
 
     # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
     # print (vel_data)
