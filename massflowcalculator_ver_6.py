@@ -131,7 +131,7 @@ print()
 # Mass Dilution Ratio
 dilution = np.divide(M_dot[diluent],
                      M_dot[fuel] + M_dot[oxidizer] +
-                     M_dot[diluent]).rename('Diluent')
+                     M_dot[diluent]).rename('Diluent'+' ('+diluent+')')
 
 
 # Place the equivalence ratio and dilution data into a pandas.DataFrame
@@ -146,6 +146,7 @@ del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot, dilution, phi
 
 Data = pd.concat([Data, velocity_calc(PDname)], axis=1)
 
+Data.index.name = 'Test Number'
 
 # Write the data file to the same location as the photodiode data was sourced
 # by creating a new file or appending to the file if it already exists
