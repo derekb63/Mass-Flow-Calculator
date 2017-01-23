@@ -150,7 +150,7 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
     return m_dot
 
 
-def velocity_calc(PDname):
+def velocity_calc(PDname, method='diff'):
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
     # PDdata.to_pickle('IP.pkl')
@@ -164,10 +164,21 @@ def velocity_calc(PDname):
 #    PD3.plot()
 #    PD4.plot()
     del PDdata
-    D1 = PD1.diff()
-    D2 = PD2.diff()
-    D3 = PD3.diff()
-    D4 = PD4.diff()
+    # Choose the method for the determination of the velocity
+    if method == 'diff':
+        D1 = PD1.diff()
+        D2 = PD2.diff()
+        D3 = PD3.diff()
+        D4 = PD4.diff()
+    elif method == 'max':
+        D1 = PD1
+        D2 = PD2
+        D3 = PD3
+        D4 = PD4
+    else:
+        print('The method you have chosen for the velicty calculation is not\
+        reconized. Please select a different method and retry.')
+
     del PD1, PD2, PD3, PD4
     t1 = D1.idxmax()
     t2 = D2.idxmax()
@@ -190,7 +201,7 @@ def velocity_calc(PDname):
 
     vel_data = pd.DataFrame(np.transpose(
             np.vstack((V1, V2, V3, R1, R2, R3))))
-    vel_data.columns=['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
+    vel_data.columns  = ['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
 
     # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
     # print (vel_data)

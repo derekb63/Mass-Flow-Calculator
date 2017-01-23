@@ -144,7 +144,7 @@ del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot, dilution, phi
 # Put the velocity and error data into the Data pandas.DataFrame
 # The necessary data is now all in the same place
 
-Data = pd.concat([Data, velocity_calc(PDname)], axis=1)
+Data = pd.concat([Data, velocity_calc(PDname, method = 'max')], axis=1)
 
 Data.index.name = 'Test Number'
 
