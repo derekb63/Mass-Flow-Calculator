@@ -111,8 +111,11 @@ props = dict(zip(elements, zip(k, coeffs)))
 
 CJ_comp1 = ''.join([x + ':' + str(props[x][1]) + ' '
                     for x in elements if x != unknown_diluent])
+
 CJ_comp2 = ''.join([x + ':' + str(props[x][1]) + ' '
                     for x in elements if x != known_diluent])
 
-A = CJ_func(CJ_comp1)
-B = CJ_func(CJ_comp2)
+vel = CJ_func(CJ_comp1)
+CJ_func(CJ_comp2)
+
+print(vel)

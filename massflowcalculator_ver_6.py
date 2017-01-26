@@ -51,21 +51,6 @@ def mass_flow_calc(diluent, Tname=None, Pname=None, PDname=None):
 
 
     # Import Temperature File
-#    try:
-#        Tname
-#    except NameError:
-#        Tname = FindFile('Temperature Open')                  
-#    # Import Pressure File
-#    try:
-#        Pname
-#    except NameError:
-#        Pname = FindFile('Pressure Open')
-#    # Import Photodiode File
-#    try:
-#        PDname
-#    except NameError:
-#        PDname = FindFile('Photodiode Open')
-        
     if Tname == None:
         Tname = FindFile('Temperature Open')
     if Pname == None:
