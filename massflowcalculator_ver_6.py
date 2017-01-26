@@ -159,7 +159,8 @@ def mass_flow_calc(diluent, Tname=None, Pname=None, PDname=None):
     # Write the data file to the same location as the photodiode data was
     # sourced by creating a new file or appending to the file
 
-    Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/testdata.csv', mode='a')
+
+    Data.to_csv('/'.join(PDname.split('/')[:-1]) + 'testdata.csv', mode='a')
 
     print(Data)
 
