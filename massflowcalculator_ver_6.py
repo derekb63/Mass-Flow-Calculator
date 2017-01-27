@@ -13,7 +13,7 @@ from functions import reformat, find_M_dot, velocity_calc, FindFile
 
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
-                   Tname=None, Pname=None, PDname=None):
+                   Tname=None, Pname=None, PDname=None, save=True):
     start = time.time()
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
@@ -111,11 +111,13 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     # Write the data file to the same location as the photodiode data was
     # sourced by creating a new file or appending to the file
-
-    Data.to_csv('/'.join(PDname.split('/')[:-1]) + 'testdata.csv', mode='a')
+    if save is True:
+        Data.to_csv('/'.join(PDname.split('/')[:-1]) +
+                    'testdata.csv', mode='a')
 
     print(Data)
-    Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None')
+    Data.plot(x='Phi', y=['V1', 'V2', 'V3'], marker='x', linestyle='None',
+              ylim=(500, 3000))
 
     end = time.time()
     print('Run Time:', end-start, 'seconds')
@@ -129,4 +131,4 @@ if __name__ == '__main__':
 #                          Pname='E:/PDE Project/No Dilution/PT.tdms',
 #                          PDname='E:/PDE Project/No Dilution/PD.tdms')
     
-    Data = mass_flow_calc(diluent='N2')
+    Data = mass_flow_calc(diluent='N2', save=False)

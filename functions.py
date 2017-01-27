@@ -152,7 +152,7 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
     return m_dot
 
 
-def velocity_calc(PDname, method='diff'):
+def velocity_calc(PDname, method='max'):
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
     # PDdata.to_pickle('IP.pkl')
