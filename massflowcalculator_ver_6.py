@@ -116,7 +116,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     print(Data)
     Data.plot(x='Phi', y=['V1', 'V2', 'V3'], marker='x', linestyle='None')
-
+	print()
     end = time.time()
     print('Run Time:', end-start, 'seconds')
 
