@@ -17,13 +17,12 @@ import sys
 R = ct.gas_constant / 1000                     # Gas constant (kPa m^3/kmol-K)
 P_d = 101325                                  # Downstream pressure in kPa
 
-gas = ct.Solution('gri30.xml')
-
 
 def FindFile(text):
     def openFile():
         global Fname
         Fname = askopenfilename()
+        print(Fname)
         root.destroy()
 
     root = Tk()
@@ -33,7 +32,9 @@ def FindFile(text):
 
     return Fname
 
+
 def calibrate(P1, T1, ducer, cals, Gas):
+    gas = ct.Solution('gri30.xml')
     cor_p = P1*cals[ducer][0]+cals[ducer][1]+14.7
     Pres = cor_p*6894.75729                   # Orifice Upstream Pressure
     off = int(np.argmax(-np.diff(Pres)))        # Valve turns on
