@@ -10,6 +10,7 @@ import pandas as pd
 from nptdms import TdmsFile
 import time
 from functions import reformat, find_M_dot, velocity_calc, FindFile
+from functions import Fuel_Oxidizer_Ratio
 
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
@@ -88,7 +89,8 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             M_dot[Gas][test] = m_dot
 
     # Equivelance Ratio
-    phi = 10*np.divide(M_dot[fuel], M_dot[oxidizer]).rename('Phi')
+    phi = np.divide(np.divide(M_dot[fuel], M_dot[oxidizer]).rename('Phi'),
+                    Fuel_Oxidizer_Ratio(fuel, oxidizer))
 
     # Mass Fraction of Diluent
     dilution = np.divide(M_dot[diluent],

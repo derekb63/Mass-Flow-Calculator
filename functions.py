@@ -209,3 +209,43 @@ def velocity_calc(PDname, method='max'):
     # print (vel_data)
     # plt.plot(phi, vel_data[:,0], 'x')
     return vel_data
+
+
+# Fuel_Oxidizer_Ratio takes the imput strings of the fuel and oxidizer as well
+# and caclulates the stoiciometric fuel oxidizer ratio
+def Fuel_Oxidizer_Ratio(fuel='C3H8', ox='N2O'):
+    Elements = ['C', 'H', 'O', 'N']
+    ox_val = [0, 0, 0, 0]
+    if ox == 'Air':
+        ox = ['O2', 'N2']
+        ox_val = [0, 0, 2, 7.52]
+        MW_ox = 28.8
+    elif ox == 'N2O':
+        ox_val = [0, 0, 1, 2]
+        MW_ox = 44
+    elif ox == 'O2':
+        ox_val = [0, 0, 2, 0]
+        MW_ox = 32
+    else:
+        print('Your Oxidizer is not reconized')
+    if fuel == 'H2':
+        fuel_val = [0, 2, 0, 0]
+        MW_fuel = 2
+    elif fuel == 'CH4':
+        fuel_val = [1, 4, 0, 0]
+        MW_fuel = 16.04
+    elif fuel == 'C3H8':
+        fuel_val = [3, 8, 0, 0]
+        MW_fuel = 44
+    else:
+        print('Your Fuel is not reconized')
+    react_names = [fuel]
+    react_names += [ox]
+    product_vals = [(1, 0, 2, 0), (0, 2, 1, 0), (0, 0, 0, 2)]
+    product_names = ['CO2', 'H2O', 'N2']
+    names = [ox] + product_names
+    A = pd.DataFrame(np.transpose(np.vstack([ox_val, product_vals])),
+                     index=Elements, columns=names)
+    coeffs = np.abs(np.linalg.solve(A[:][:], [-x for x in fuel_val]))
+    F_O_s = (1*MW_fuel)/(coeffs[0]*MW_ox)
+    return F_O_s
