@@ -126,11 +126,17 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     return Data
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
 #    Data = mass_flow_calc(diluent='N2',
-#                          Tname='E:/PDE Project/No Dilution/TC.tdms',
-#                          Pname='E:/PDE Project/No Dilution/PT.tdms',
-#                          PDname='E:/PDE Project/No Dilution/PD.tdms')
-    
-    Data = mass_flow_calc(diluent='N2', save=False)
+#                          Tname='D:/PDE Project/Dilution Project/' +
+#                          'Dilution Experiment Tests/Phase 1/' +
+#                         'January 27/No Dilution/TC.tdms',
+#                         Pname='D:/PDE Project/Dilution Project/' +
+#                         'Dilution Experiment Tests/Phase 1/' +
+#                         'January 27/No Dilution/PT.tdms',
+#                         PDname='D:/PDE Project/Dilution Project/' +
+#                         'Dilution Experiment Tests/Phase 1/' +
+#                         'January 27/No Dilution/PD.tdms', save = False)
+#   
+#    Data = mass_flow_calc(diluent='N2', save=False)
