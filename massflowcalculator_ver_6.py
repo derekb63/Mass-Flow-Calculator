@@ -15,7 +15,7 @@ from functions import Fuel_Oxidizer_Ratio
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
-                   method='diff'):
+                   method='max'):
     start = time.time()
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
@@ -139,4 +139,4 @@ if __name__ == '__main__':
 #                         PDname='D:/PDE Project/Dilution Project/' +
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
-    Data = mass_flow_calc(diluent='N2', save=False)
+    Data = mass_flow_calc(diluent='N2', save=True, method='max')
