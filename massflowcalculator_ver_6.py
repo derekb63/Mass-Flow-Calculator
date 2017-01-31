@@ -107,7 +107,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     # Put the velocity and error data into the Data pandas.DataFrame
     # The necessary data is now all in the same place
 
-    Data = pd.concat([Data, velocity_calc(PDname, method='max')], axis=1)
+    Data = pd.concat([Data, velocity_calc(PDname, method='diff')], axis=1)
 
     Data.index.name = 'Test Number'
 
@@ -118,7 +118,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                     'testdata.csv', mode='a')
 
     print(Data)
-    Data.plot(x='Phi', y=['V1', 'V2', 'V3'], marker='x', linestyle='None',
+    Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
               ylim=(500, 3000))
 
     end = time.time()
@@ -126,7 +126,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     return Data
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
 #    Data = mass_flow_calc(diluent='N2',
 #                          Tname='D:/PDE Project/Dilution Project/' +
@@ -139,4 +139,4 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
 #   
-#    Data = mass_flow_calc(diluent='N2', save=False)
+    Data = mass_flow_calc(diluent='N2', save=True)

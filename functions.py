@@ -249,3 +249,7 @@ def Fuel_Oxidizer_Ratio(fuel='C3H8', ox='N2O'):
     coeffs = np.abs(np.linalg.solve(A[:][:], [-x for x in fuel_val]))
     F_O_s = (1*MW_fuel)/(coeffs[0]*MW_ox)
     return F_O_s
+
+if __name__ == '__main__':
+    print ('some stuff')
+    
