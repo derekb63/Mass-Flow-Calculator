@@ -1,4 +1,4 @@
-#! usr/bin/env python3
+#!usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Tue Dec 13 12:17:45 2016
@@ -250,6 +250,5 @@ def Fuel_Oxidizer_Ratio(fuel='C3H8', ox='N2O'):
     F_O_s = (1*MW_fuel)/(coeffs[0]*MW_ox)
     return F_O_s
 
-if __name__ == '__main__':
-    print ('some stuff')
+
     

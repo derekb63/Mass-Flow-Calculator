@@ -1,4 +1,4 @@
-#! usr/bin/env python
+#!usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov  9 19:32:20 2016
@@ -14,7 +14,8 @@ from functions import Fuel_Oxidizer_Ratio
 
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
-                   Tname=None, Pname=None, PDname=None, save=True):
+                   Tname=None, Pname=None, PDname=None, save=True,
+                   method='diff'):
     start = time.time()
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
@@ -107,7 +108,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     # Put the velocity and error data into the Data pandas.DataFrame
     # The necessary data is now all in the same place
 
-    Data = pd.concat([Data, velocity_calc(PDname, method='diff')], axis=1)
+    Data = pd.concat([Data, velocity_calc(PDname, method)], axis=1)
 
     Data.index.name = 'Test Number'
 
@@ -138,10 +139,4 @@ if __name__ == '__main__':
 #                         PDname='D:/PDE Project/Dilution Project/' +
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
-<<<<<<< HEAD
-#   
-    Data = mass_flow_calc(diluent='N2', save=True)
-=======
-   
-    Data = mass_flow_calc(diluent='N2')
->>>>>>> 4f31042ab79c22ba594df58dfc35336b365fcbe7
+    Data = mass_flow_calc(diluent='N2', save=False)
