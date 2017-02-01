@@ -13,7 +13,9 @@ import sys
 
 # Read in the photodiode data and plot the point that is used for the
 # measurement method defined in the function call
-def signal_plot(PDname, method='max'):
+def signal_plot(PDname=None, method='max'):
+    if PDname is None:
+        Pdname=Findfile('Photodiode')
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
 #    PD1 = PDdata[PDdata.columns[0::4]]
@@ -21,9 +23,13 @@ def signal_plot(PDname, method='max'):
 #    PD3 = PDdata[PDdata.columns[2::4]]
 #    PD4 = PDdata[PDdata.columns[3::4]]
 #    return(PD1, PD2, PD3, PD4)
-    num_tests = len(PDdata.columns)/4
+    num_tests = int(len(PDdata.columns)/4)
     plot_num = test_enter(num_tests)
-
+    col_names = []
+    for i in range(num_tests):
+        col_names += ['PD1', 'PD2', 'PD3', 'PD4']
+    PDdata.columns = col_names
+    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
     return PDdata
 
 
@@ -36,7 +42,7 @@ def test_enter(num_tests):
         print('Please input a positive value')
         plot_num = None
     else:
-        return plot_num
+        return int(plot_num)
 
 def FindFile(text):
     def openFile():
