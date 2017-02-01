@@ -120,7 +120,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     print(Data)
     Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
-              ylim=(500, 3000))
+              ylim=(500, 3500), xlim=[0.95,1.05])
 
     end = time.time()
     print('Run Time:', end-start, 'seconds')
@@ -139,4 +139,5 @@ if __name__ == '__main__':
 #                         PDname='D:/PDE Project/Dilution Project/' +
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
-    Data = mass_flow_calc(diluent='N2', save=True, method='max')
+    Data = mass_flow_calc(diluent='N2', save=False, method='max')
+    Data = mass_flow_calc(diluent='N2', save=False, method='diff')

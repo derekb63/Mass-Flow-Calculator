@@ -161,7 +161,8 @@ def velocity_calc(PDname, method='max'):
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
     PD4 = PDdata[PDdata.columns[3::4]]
-    PDdata[PDdata.columns[5:9]].plot()
+#    print(PDdata.columns)
+#    PDdata[PDdata.columns[-4:-1]].plot()
 #    PD1.plot()
 #    PD2.plot()
 #    PD3.plot()
