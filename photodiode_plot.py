@@ -15,7 +15,7 @@ import sys
 # measurement method defined in the function call
 def signal_plot(PDname=None, method='max'):
     if PDname is None:
-        Pdname=Findfile('Photodiode')
+        PDname = FindFile('Photodiode')
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
 #    PD1 = PDdata[PDdata.columns[0::4]]
@@ -27,7 +27,10 @@ def signal_plot(PDname=None, method='max'):
     plot_num = test_enter(num_tests)
     col_names = []
     for i in range(num_tests):
-        col_names += ['PD1', 'PD2', 'PD3', 'PD4']
+        col_names += ['Test {0} '.format(i) + 'PD1',
+                      'Test {0} '.format(i) + 'PD2',
+                      'Test {0} '.format(i) + 'PD3',
+                      'Test {0} '.format(i) + 'PD4']
     PDdata.columns = col_names
     PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
     return PDdata
@@ -60,6 +63,6 @@ def FindFile(text):
 
 if __name__ == '__main__':
 
-    PDname = FindFile('Photodiode')
+    # PDname = FindFile('Photodiode')
 #    [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
-    data = signal_plot(PDname, method='max')
+    signal_plot(method='max')
