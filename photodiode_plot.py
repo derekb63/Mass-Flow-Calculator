@@ -9,6 +9,7 @@ from nptdms import TdmsFile
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import sys
+import matplotlib.pyplot as plt 
 
 
 # Read in the photodiode data and plot the point that is used for the
@@ -18,22 +19,30 @@ def signal_plot(PDname=None, method='max'):
         PDname = FindFile('Photodiode')
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
-#    PD1 = PDdata[PDdata.columns[0::4]]
-#    PD2 = PDdata[PDdata.columns[1::4]]
-#    PD3 = PDdata[PDdata.columns[2::4]]
-#    PD4 = PDdata[PDdata.columns[3::4]]
-#    return(PD1, PD2, PD3, PD4)
     num_tests = int(len(PDdata.columns)/4)
     plot_num = test_enter(num_tests)
-    col_names = []
-    for i in range(num_tests):
-        col_names += ['Test {0} '.format(i) + 'PD1',
-                      'Test {0} '.format(i) + 'PD2',
-                      'Test {0} '.format(i) + 'PD3',
-                      'Test {0} '.format(i) + 'PD4']
-    PDdata.columns = col_names
-    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
-    return PDdata
+    new_data = PDdata[PDdata.columns[plot_num*4:(plot_num*4)+4]]
+
+    new_data.columns = ['Test {0} '.format(plot_num) + 'PD1',
+                        'Test {0} '.format(plot_num) + 'PD2',
+                        'Test {0} '.format(plot_num) + 'PD3',
+                        'Test {0} '.format(plot_num) + 'PD4']
+    
+    new_data.index.name = 'Time (s)'
+    # Determine the values of the 1st finite difference  
+    diff_val = new_data.diff()
+    # Plot the desired signals
+    new_data.plot()
+    # Plot locations of the maximum values of the signals
+    plt.plot(new_data.idxmax(), new_data.max(), marker='o',
+             linestyle='None', markersize=8, label = 'Max')
+    # Plot locations of the maximum values of the 1st finite difference
+    plt.plot(diff_val.idxmax(), new_data[diff_val.idxmax()], marker='x',
+             linestyle='None', markersize=8, label = 'Grad')
+    plt.legend()
+    plt.show()
+#    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
+    return new_data
 
 
 def test_enter(num_tests):
@@ -65,4 +74,4 @@ if __name__ == '__main__':
 
     # PDname = FindFile('Photodiode')
 #    [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
-    signal_plot(method='max')
+    data = signal_plot(method='max')
