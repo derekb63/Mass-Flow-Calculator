@@ -47,7 +47,7 @@ def Calc_Props(Gas, T, P):
     MW = gas.mean_molecular_weight
     return rho, k, MW
 
-c_d = 1
+c_d = .99
 D = conv_in_m(0.047, 'in', 'm')
 A = A_orf(D)
 P = conv_Pa_psi(100, 'psi', 'Pa')

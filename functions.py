@@ -58,16 +58,16 @@ def calibrate(P1, T1, ducer, cals, Gas):
     return P_u, T_avg, rho, k, MW
 
 
-def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg):
+def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg, C_d=0.99):
     # finds mass flow rate
     # two different equations depends on sub/supersonic
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
-        m_dot = A_orifice * P_u * k * \
+        m_dot = A_orifice * P_u * k * C_d * \
             ((2/(k+1))**((k+1)/(k-1)))**(0.5)\
             / ((k*(R/MW)*T_avg))**(0.5)
     else:
 
-        m_dot = rho*A_orifice\
+        m_dot = rho * A_orifice * C_d \
                 * ((2*(P_u-P_d))/(rho*(1-(A_orifice/A_tube)**2)))**(0.5)
     return m_dot
 
