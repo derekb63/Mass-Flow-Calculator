@@ -115,20 +115,13 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     # Write the data file to the same location as the photodiode data was
     # sourced by creating a new file or appending to the file
     if save is True:
-        Data.to_csv('/'.join(PDname.split('/')[:-1]) +
+        Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/' +
                     'testdata.csv', mode='a')
 
-    print(Data)
-    Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
-              ylim=(500, 3500), xlim=[0.95,1.05])
-
-    end = time.time()
+    return Data
     print('Run Time:', end-start, 'seconds')
 
-    return Data
-
 if __name__ == '__main__':
-
 #    Data = mass_flow_calc(diluent='N2',
 #                          Tname='D:/PDE Project/Dilution Project/' +
 #                          'Dilution Experiment Tests/Phase 1/' +
@@ -139,5 +132,29 @@ if __name__ == '__main__':
 #                         PDname='D:/PDE Project/Dilution Project/' +
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
-    Data = mass_flow_calc(diluent='N2', save=False, method='max')
-    Data = mass_flow_calc(diluent='N2', save=False, method='diff')
+#    Data = mass_flow_calc(diluent='N2', save=False, method='max')
+    Data = mass_flow_calc(diluent='N2', save=True, method='diff')
+    
+    print(Data)
+    Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
+              ylim=(500, 3500), xlim=[0.95,1.05])
+
+    end = time.time()
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
