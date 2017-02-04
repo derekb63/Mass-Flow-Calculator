@@ -6,7 +6,7 @@ Created on Fri Feb  3 15:35:21 2017
 """
 
 import pandas as pd
-from massflowcalculator_ver_6 import mass_flow_calc
+from massflowcalculator import mass_flow_calc
 import glob, os 
 
 filepath='Z:\Windows.Documents\Desktop\Mass-Flow-Calculator-master'
