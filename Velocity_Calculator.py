@@ -9,7 +9,7 @@ import pandas as pd
 from massflowcalculator import mass_flow_calc
 import glob, os 
 
-filepath='Z:\Windows.Documents\Desktop\Mass-Flow-Calculator-master'
+filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\January 31\CO2'
 os.chdir(filepath)
 
 files=glob.glob("*.tdms")
@@ -30,13 +30,16 @@ for el in filesets:
     for name in el:
         if name[0:2]=='PD':
             PDFile=name
+            print(name)
         if name[0:2]=='PT':
             PTFile=name
         if name[0:2]=='TC':
             TCFile=name
-    Data.append(mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent='N2',
+            
+    newData=mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent='N2',
                    Tname=TCFile, Pname=PTFile, PDname=PDFile, save=False,
-                   method='diff'))
+                   method='diff')
+    Data=Data.append(newData)
 csvName=filepath+ '/' + 'masterfile.csv'
 
 Data.to_csv(csvName)

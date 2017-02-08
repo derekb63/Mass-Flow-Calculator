@@ -21,9 +21,9 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
 
     """ If you don't want to choose the files """
-    # Tname  = 'January20\TC.tdms'
-    # Pname  = 'January20\PT.tdms'
-    # PDname = 'January20\PD.tdms'
+    # Tname  = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 3\Dilution_none\TC2.tdms'
+    # Pname  = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 3\Dilution_none\PT2.tdms'
+    # PDname = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 3\Dilution_none\PD2.tdms'
 
     # Pressure transducer calibrations
     cals = [[31230, -125.56],
@@ -72,11 +72,11 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             D_orifice = 0.142  # Diameter of the orifice in INCHES
             TC = 2
         elif (Gas == 'Nitrogen') or (Gas == 'N2'):
-            ducer = 7
+            ducer = 8
             D_orifice = 0.063  # Diameter of the orifice in INCHES
             TC = 3
         elif (Gas == 'CO2') or (Gas == 'CarbonDioxide'):
-            ducer = 7
+            ducer = 8
             D_orifice = 0.063  # Diameter of the orifice in INCHES
             TC = 3
         else:
@@ -117,9 +117,10 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     if save is True:
         Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/' +
                     'testdata.csv', mode='a')
-
+    
+    # print('Run Time:', end-start, 'seconds')
     return Data
-    print('Run Time:', end-start, 'seconds')
+    
 
 if __name__ == '__main__':
 #    Data = mass_flow_calc(diluent='N2',

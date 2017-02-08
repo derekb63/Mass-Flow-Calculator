@@ -35,7 +35,7 @@ def FindFile(text):
 
 def calibrate(P1, T1, ducer, cals, Gas):
     gas = ct.Solution('gri30.xml')
-    cor_p = P1*cals[ducer][0]+cals[ducer][1]+14.7
+    cor_p = P1*cals[ducer-1][0]+cals[ducer-1][1]+14.7
     Pres = cor_p*6894.75729                   # Orifice Upstream Pressure
     off = int(np.argmax(-np.diff(Pres)))        # Valve turns on
 
@@ -129,7 +129,7 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
     # Gets a Series out of the list of dataframes
     Tdata = Tempdata[test]
     Pdata = Pressdata[test]
-
+    # print(Pdata)
     P1 = Pdata['Gauge'+str(ducer)]
     T1 = Tdata['Gauge'+str(TC)]
     # *C to K
