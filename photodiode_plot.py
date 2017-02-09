@@ -77,4 +77,4 @@ if __name__ == '__main__':
 
     # PDname = FindFile('Photodiode')
 #    [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
-    data = signal_plot(method='max')
+    data = signal_plot(method='diff')
