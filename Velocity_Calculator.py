@@ -21,7 +21,7 @@ os.chdir(filepath)
 
 #finds all tdms files in folder
 #puts filenames into a list
-#I am not sure if it looks for tdms files within 
+#Does not look for tdms files within 
 #other folders inside of specified folder
 
 files=glob.glob("*.tdms")
