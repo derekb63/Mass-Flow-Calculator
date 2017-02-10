@@ -1,2 +1,2 @@
-cmd /c activate python3
-cmd /c python3 massflowcalculator.py
+python python_inputs.py
+pause
