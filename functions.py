@@ -5,6 +5,10 @@ Created on Tue Dec 13 12:17:45 2016
 
 @author: beande
 """
+'''
+This functions file contains the functions necessary to run the mass flow calculator
+It contains a lot of different functions and has the potential to be cleaned up and organized
+'''
 import numpy as np
 import pandas as pd
 import cantera as ct
@@ -14,10 +18,11 @@ from tkinter.filedialog import askopenfilename
 import sys
 
 
-R = ct.gas_constant / 1000                     # Gas constant (kPa m^3/kmol-K)
-P_d = 101325                                  # Downstream pressure in kPa
+R = ct.gas_constant / 1000 # Gas constant (kPa m^3/kmol-K)
+P_d = 101325 # Downstream pressure in kPa
 
-
+#tkinter dialog box to open files
+#outputs the file name (str)
 def FindFile(text):
     def openFile():
         global Fname
@@ -32,7 +37,22 @@ def FindFile(text):
 
     return Fname
 
+''' Uses pressure calibration curves in order to get
+values for average pressure and temp as well as the 
+density, ratio of specific weights (cp/cv), and molecular weight
 
+Inputs: P1: pandas Series--of voltage values read from tdms and reformatted (another function)
+        T1: pandas Series--of voltage values read from tdms and reformatted (another function)
+        ducer: int--natural number(>=1) of which pressure transducer we are using 
+        cals: list--of calibration curves for each pressure transducer we are using
+        Gas: str--specifying which gas is being analyzed
+        
+Outputs:P_u: float--upstream pressure of flow
+        T_avg: float--average temperature of flow
+        rho: float--density of gas
+        k: float--(cp/cv) of gas
+        MW: float--molecular weight of gas
+'''
 def calibrate(P1, T1, ducer, cals, Gas):
     gas = ct.Solution('gri30.xml')
     cor_p = P1*cals[ducer-1][0]+cals[ducer-1][1]+14.7
@@ -57,21 +77,32 @@ def calibrate(P1, T1, ducer, cals, Gas):
 
     return P_u, T_avg, rho, k, MW
 
-
+''' 
+takes a whole bunch of inputs and finds the mass flow rate of the gas
+All inputs are floats
+'''
 def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u, P_d, T_avg, C_d=0.99):
     # finds mass flow rate
     # two different equations depends on sub/supersonic
+    # sonic
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
         m_dot = A_orifice * P_u * k * C_d * \
             ((2/(k+1))**((k+1)/(k-1)))**(0.5)\
             / ((k*(R/MW)*T_avg))**(0.5)
+    #subsonic
     else:
-
         m_dot = rho * A_orifice * C_d \
                 * ((2*(P_u-P_d))/(rho*(1-(A_orifice/A_tube)**2)))**(0.5)
     return m_dot
 
+''' 
+this function was created as a result of doing multiple tests in one tdms file
+we need a way to iterate through each test, and organize the data.
 
+Input: pandas Dataframe created from nptdms.TdmsFile(Filepath)
+Ouput: list of pandas Dataframes for each test
+
+'''
 def reformat(data):
     index = list(data.index)     # time
     labels = list(data.columns)  # test_num/channel_num
@@ -90,18 +121,26 @@ def reformat(data):
             mynumber += x[-1]
         numChannels.append(int(mynumber))
     numChannels = max(numChannels)+1
-
+        
+    #creates list of empty dataframes with len()==numChannels
     mybiglist = []
     for _ in range(int(len(labels)/numChannels)):
         mybiglist.append(pd.DataFrame(index=index, columns=[]))
-
+    
+    ## for each name, determines which entry in list to put the sensor values
     for name in labels:
         L = name.split("/")
-
+        
+        #finds test number.  Test 0 doesn't get assigned a number, 
+        #so we catch it as a ValueError
         try:
             test_num = int(L[1][9:-1])
         except ValueError:
             test_num = 0
+            
+        #finds number of the sensor
+        #This doesn't need to be PT data points
+        #thats just what I wrote the code for at first
         PTnum = ''
         for el in L[2]:
             try:
@@ -112,6 +151,7 @@ def reformat(data):
             int(PTnum)
         except:
             PTnum = 0
+            
         mybiglist[test_num]['Gauge'+str(PTnum)] = data[name]
 
     return mybiglist
@@ -155,9 +195,8 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
 def velocity_calc(PDname, method='max'):
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
-    # PDdata.to_pickle('IP.pkl')
+    
     PD1 = PDdata[PDdata.columns[0::4]]
-    # print(PD1)
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
     PD4 = PDdata[PDdata.columns[3::4]]
