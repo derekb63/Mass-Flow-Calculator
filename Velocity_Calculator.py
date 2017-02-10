@@ -14,7 +14,7 @@ import pandas as pd
 from massflowcalculator import mass_flow_calc
 import glob, os 
 #Change this variable based on which folder you want to run
-filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\January 31\CO2'
+filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen'
 
 #changes working directory of script
 os.chdir(filepath)

@@ -77,11 +77,11 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             TC = 2
         elif (Gas == 'Nitrogen') or (Gas == 'N2'):
             ducer = 8
-            D_orifice = 0.063  # Diameter of the orifice in INCHES
+            D_orifice = 0.125  # Diameter of the orifice in INCHES
             TC = 3
         elif (Gas == 'CO2') or (Gas == 'CarbonDioxide'):
             ducer = 8
-            D_orifice = 0.063  # Diameter of the orifice in INCHES
+            D_orifice = 0.125  # Diameter of the orifice in INCHES
             TC = 3
         else:
             print('Gas Not Recognized')
@@ -119,8 +119,9 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     # Write the data file to the same location as the photodiode data was
     # sourced by creating a new file or appending to the file
     if save is True:
-        Data.to_csv('/'.join(PDname.split('/')[:-1]) + '/' +
-                    'testdata.csv', mode='a')
+        Save_File = '/'.join(PDname.split('/')[:-1]) + '/' + 'testdata.csv'
+        Data.to_csv(Save_File, mode='a')
+        print('The data has been saved to {0}'.format(Save_File))
     
     # print('Run Time:', end-start, 'seconds')
     return Data
