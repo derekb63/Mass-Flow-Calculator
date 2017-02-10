@@ -15,7 +15,7 @@ import numpy as np
 
 # Read in the photodiode data and plot the point that is used for the
 # measurement method defined in the function call
-def signal_plot(PDname=None, method='max'):
+def signal_plot(PDname=None, method='diff'):
     if PDname is None:
         PDname = FindFile('Photodiode')
     PDfile = TdmsFile(PDname)
@@ -33,7 +33,7 @@ def signal_plot(PDname=None, method='max'):
     # Determine the values of the 1st finite difference
     diff_val = new_data.diff()
     # Plot the desired signals
-    new_data.plot(linewidth=5)
+    new_data.plot(linewidth=3)
     # Plot locations of the maximum values of the signals
     plt.plot(new_data.idxmax(), new_data.max(), marker='o',
              linestyle='None', markersize=8, label='Max', color='black',
