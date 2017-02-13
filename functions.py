@@ -113,7 +113,7 @@ Output:
 
 
 def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u,
-              P_d=101325, T_avg, C_d=0.99):
+              P_d=101325, T_avg=298, C_d=0.99):
 
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
         # sonic throat condition
@@ -221,7 +221,7 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
 
     # Mass Flow Calculation
     m_dot = mass_flow(k_gas, R, MW, rho, A_orifice, A_tube,
-                      P_u, P_d=101325, T_avg)
+                      P_u, P_d=101325, T_avg=298)
 
     return m_dot
 

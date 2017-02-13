@@ -77,11 +77,11 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             TC = 2
         elif (Gas == 'Nitrogen') or (Gas == 'N2'):
             ducer = 8
-            D_orifice = 0.125  # Diameter of the orifice in INCHES
+            D_orifice = 0.063  # Diameter of the orifice in INCHES
             TC = 3
         elif (Gas == 'CO2') or (Gas == 'CarbonDioxide'):
             ducer = 8
-            D_orifice = 0.125  # Diameter of the orifice in INCHES
+            D_orifice = 0.063  # Diameter of the orifice in INCHES
             TC = 3
         else:
             print('Gas Not Recognized')
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 #                         'Dilution Experiment Tests/Phase 1/' +
 #                         'January 27/No Dilution/PD.tdms', save = False)
 #    Data = mass_flow_calc(diluent='N2', save=False, method='max')
-    Data = mass_flow_calc(diluent='N2', save=True, method='diff')
+    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
     
     #Plots this data so we can see what kind of curve we are getting
     print(Data)
