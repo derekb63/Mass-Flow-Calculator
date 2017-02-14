@@ -234,12 +234,7 @@ def velocity_calc(PDname, method='max'):
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
     PD4 = PDdata[PDdata.columns[3::4]]
-#    print(PDdata.columns)
-#    PDdata[PDdata.columns[-4:-1]].plot()
-#    PD1.plot()
-#    PD2.plot()
-#    PD3.plot()
-#    PD4.plot()
+
     del PDdata
     # Choose the method for the determination of the velocity
     if method == 'diff':
@@ -280,9 +275,6 @@ def velocity_calc(PDname, method='max'):
             np.vstack((V1, V2, V3, R1, R2, R3))))
     vel_data.columns = ['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
 
-    # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
-    # print (vel_data)
-    # plt.plot(phi, vel_data[:,0], 'x')
     return vel_data
 
 
@@ -357,6 +349,8 @@ def A_orf(D):
     return A_orf
 
 
+# Takes in a gas species the desired temperature and pressure then
+# returns the density, ratio of specific heats and mean molecular weight
 def Calc_Props(Gas, T, P):
     gas = ct.Solution('gri30.cti')
     gas.TPX = T, P, '{0}:1'.format(Gas)
