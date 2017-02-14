@@ -324,3 +324,44 @@ def Fuel_Oxidizer_Ratio(fuel='C3H8', ox='N2O'):
     coeffs = np.abs(np.linalg.solve(A[:][:], [-x for x in fuel_val]))
     F_O_s = (1*MW_fuel)/(coeffs[0]*MW_ox)
     return F_O_s
+
+
+#%% These functions came from m_dot_orifice.py 
+def conv_in_m(measurement_to_convert, starting_unit, ending_unit):
+    if starting_unit == ending_unit:
+        output = measurement_to_convert
+    elif starting_unit == 'in' and ending_unit == 'm':
+        output = np.multiply(measurement_to_convert, 0.0254)
+    elif starting_unit == 'm' and ending_unit == 'in':
+        output = np.divide(measurement_to_convert, 0.0254)
+    else:
+        print('Unit combination is not recognized')
+    return output
+
+
+# Convert from Pa to Psi and from psi to Pa
+def conv_Pa_psi(value, starting_unit, ending_unit):
+    if starting_unit == ending_unit:
+        output = value
+    elif starting_unit == 'psi' and ending_unit == 'Pa':
+        output = np.multiply(value, 6894.75728)
+    elif starting_unit == 'Pa' and ending_unit == 'psi':
+        output = np.multiply(value, 0.000145037738007)
+    else:
+        print('Unit combination is not recognized')
+    return output
+
+
+def A_orf(D):
+    A_orf = np.pi / 4 * D**2
+    return A_orf
+
+
+def Calc_Props(Gas, T, P):
+    gas = ct.Solution('gri30.cti')
+    gas.TPX = T, P, '{0}:1'.format(Gas)
+    rho = gas.density
+    k = gas.cp_mass/gas.cv_mass
+    MW = gas.mean_molecular_weight
+    return rho, k, MW
+

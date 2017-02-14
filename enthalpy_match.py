@@ -10,7 +10,6 @@ Created on Mon Jan 16 12:36:23 2017
 import cantera as ct
 from SDToolbox import CJspeed
 from scipy.optimize import fsolve
-
 import time
 
 
@@ -37,7 +36,8 @@ gas2 = ct.Solution('gri30.cti')
 
 gas_check = ct.Solution('gri30.cti')
 gas_check.TPX = T, P, 'CO2:1'
-if k_N2 >  gas_check.cp_mass/gas_check.cv_mass:
+
+if k_N2 > gas_check.cp_mass/gas_check.cv_mass:
     print('This will not work. The target gamma is too high')
 else:
     while k_CO2 < 0.9999*k_N2 or k_CO2 > 1.0001*k_N2:
