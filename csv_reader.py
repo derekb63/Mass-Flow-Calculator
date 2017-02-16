@@ -57,10 +57,9 @@ grouping:
 
 def grouping(data, group_column='Diluent (CO2)', bins=np.linspace(0, 1, 25)):
     data['groups'] = pd.cut(data[group_column], bins=bins)
-    grouped = data.groupby(['groups'])
     columns = ['Dilution', 'Velocity', 'Error']
-    mean_vals = grouped.mean()
-    std_vals = grouped.std()
+    mean_vals = data.groupby(['groups']).mean()
+    std_vals = data.groupby(['groups']).std()
 
     mean_vals.columns = columns
     std_vals.columns = columns
@@ -71,42 +70,48 @@ def grouping(data, group_column='Diluent (CO2)', bins=np.linspace(0, 1, 25)):
 
 '''
 read_csv:
-    Take in data from the desired csv file.
-
+    Take in data from the desired csv file and place the data in a Pandas
+    DataFrame. Then keep only the desired columns trim the data baed on the
+    input limits.
 '''
 
 
-def read_csv(trim=False, trim_limits=(500, 3000), plot=True, axis_limits=True):
+def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
+             axis_limits=True, desired_columns=['Diluent', 'V1', 'R1'],
+             trim_column='V'):
 
-    file_name = FindFile('csv file to plot')
+    try:
+        # Read the data from the csv into a Pandas DataFrame
+        data = pd.read_csv(file_name)
+    except:
+        file_name = FindFile('csv file to plot')
+        # Read the data from the csv into a Pandas DataFrame
+        data = pd.read_csv(file_name)
 
-    # Read the data from the csv into a Pandas DataFrame
-    data = pd.read_csv(file_name)
-
+    keep_columns = []
+    for i in desired_columns:
+        [keep_columns.append(loc) for loc,
+         idx in enumerate(data.columns) if i in idx]
     # Remove the columns that do not contain any useful information
-    drop_cols = ['Test Number', 'Test Number.1', 'Test Number.2',
-                 'Unnamed: 9', 'Unnamed: 20', 'Unnamed: 19']
 
-    data = data.drop(drop_cols, axis=1)
-
+    data = data.take(keep_columns, axis=1)
     # Separate the data into the respectiv categories for easier use later on
-    base_data = data[['Diluent (None)', 'V1', 'R1']]
-    base_data.replace(base_data['Diluent (None)'])
-    CO2_data = data[['Diluent (CO2)', 'V1.1', 'R1.1']]
-    N2_data = data[['Diluent (N2)', 'V1.2', 'R1.2']]
+    base_data = data[data.columns[0::3]]
+    base_data.replace(base_data[base_data.columns[0]])
+    CO2_data = data[data.columns[1::3]]
+    N2_data = data[data.columns[2::3]]
 
     # Remove all of the data that does not reside inside the limits imposed
     # by the user
     if trim is True:
-        base_data = base_data[base_data['V1'] > trim_limits[0]]
-        base_data = base_data[base_data['V1'] < trim_limits[1]]
+        base_data = base_data[base_data['V1'] > min(trim_limits)]
+        base_data = base_data[base_data['V1'] < max(trim_limits)]
 
-        CO2_data = CO2_data[CO2_data['V1.1'] > trim_limits[0]]
-        CO2_data = CO2_data[CO2_data['V1.1'] < trim_limits[1]]
+        CO2_data = CO2_data[CO2_data['V1.1'] > min(trim_limits)]
+        CO2_data = CO2_data[CO2_data['V1.1'] < max(trim_limits)]
 
-        N2_data = N2_data[N2_data['V1.2'] > trim_limits[0]]
-        N2_data = N2_data[N2_data['V1.2'] < trim_limits[1]]
-
+        N2_data = N2_data[N2_data['V1.2'] > min(trim_limits)]
+        N2_data = N2_data[N2_data['V1.2'] < max(trim_limits)]
     # Plot the CO2 and N2 data. The non dilution data is not plotted since
     # it creates a large cluster of data on the LHS of the plot that is not
     # really useful
@@ -117,7 +122,7 @@ def read_csv(trim=False, trim_limits=(500, 3000), plot=True, axis_limits=True):
 
         if axis_limits is True:
             plt.xlim([0.0, 0.5])
-            plt.ylim([500, 3000])
+            plt.ylim(trim_limits)
         plt.xlabel(r'$Y_{diluent}$')
         plt.ylabel('Detonation Velocity (m/s)')
         fig.legend(handles=[p1, p2], labels=[r'$CO_{2}$', r'$N_{2}$'], loc=5)
@@ -136,12 +141,12 @@ def read_csv(trim=False, trim_limits=(500, 3000), plot=True, axis_limits=True):
 
 if __name__ == '__main__':
     # Create the bins to sort the dilution species into
-    bins = np.linspace(0.125, 0.3, 25)
-
+    bins = np.linspace(0, 1, 150)
+    file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
     # Get the raw data from the csv_file
-    base_data, CO2_data, N2_data = read_csv(axis_limits=False,
+    base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
                                             trim=True,
-                                            trim_limits=(1500, 2300),
+                                            trim_limits=(500, 3000),
                                             plot=False)
     # Output the data to a nested dictionary that can be accessed using the
     # following syntax
@@ -153,3 +158,10 @@ if __name__ == '__main__':
                                      bins=bins),
                       'No_dil': [base_data['V1'].mean(), base_data['V1'].std()]
                       }
+    fig = plt.figure()
+    plt.plot(processed_data['CO2']['mean']['Dilution'],
+             processed_data['CO2']['mean']['Velocity'], 'o')
+
+    plt.plot(processed_data['N2']['mean']['Dilution'],
+             processed_data['N2']['mean']['Velocity'], 'x')
+    plt.show()
