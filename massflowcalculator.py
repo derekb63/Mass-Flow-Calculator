@@ -14,12 +14,9 @@ from functions import Fuel_Oxidizer_Ratio
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
-<<<<<<< HEAD
                    method='max', dil_orifice=0.063):
     start = time.time()
-=======
-                   method='max'):
->>>>>>> 78730b1089e216c14137e2b07759a8141b544bef
+
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
 
@@ -132,19 +129,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     return Data
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-   #filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
-#    Data = mass_flow_calc(diluent='N2',
-#                         Tname = filepath + '\TC.tdms',
-#                         Pname = filepath + '\PT.tdms',
-#                         PDname= filepath + '\PD.tdms',
-#                         save  = False)
-    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
-    #Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
-    
-    #Plots this data so we can see what kind of curve we are getting
-    #print(Data)
-=======
+
     filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
     Data = mass_flow_calc(diluent='N2',
                           Tname=filepath + '\TC.tdms',
@@ -156,6 +141,6 @@ if __name__ == '__main__':
 
     # Plots this data so we can see what kind of curve we are getting
     # print(Data)
->>>>>>> 78730b1089e216c14137e2b07759a8141b544bef
+
     Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
               ylim=(500, 3500), xlim=[0.95, 1.05])
