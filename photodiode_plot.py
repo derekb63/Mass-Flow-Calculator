@@ -11,6 +11,7 @@ from tkinter.filedialog import askopenfilename
 import sys
 import matplotlib.pyplot as plt 
 import numpy as np
+from functions import FindFile
 
 
 # Read in the photodiode data and plot the point that is used for the
@@ -59,22 +60,9 @@ def test_enter(num_tests):
     else:
         return int(plot_num)
 
-def FindFile(text):
-    def openFile():
-        global Fname
-        Fname = askopenfilename()
-        print(Fname)
-        root.destroy()
-
-    root = Tk()
-    root.attributes("-topmost", True)
-    Button(root, text=text, command = openFile).pack(fill=X)
-    mainloop()     
-
-    return Fname
 
 if __name__ == '__main__':
 
     # PDname = FindFile('Photodiode')
-#    [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
+    # [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
     data = signal_plot(method='diff')

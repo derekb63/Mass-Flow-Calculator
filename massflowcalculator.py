@@ -8,15 +8,18 @@ Created on Wed Nov  9 19:32:20 2016
 import numpy as np
 import pandas as pd
 from nptdms import TdmsFile
-import time
 from functions import reformat, find_M_dot, velocity_calc, FindFile
 from functions import Fuel_Oxidizer_Ratio
 
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
+<<<<<<< HEAD
                    method='max', dil_orifice=0.063):
     start = time.time()
+=======
+                   method='max'):
+>>>>>>> 78730b1089e216c14137e2b07759a8141b544bef
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
 
@@ -37,18 +40,18 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     # Get the filepaths for the termperature, pressure and photodiode data if
     # they are not given in the function call
-    if Tname == None:
+    if Tname is None:
         Tname = FindFile('Temperature Open')
 
-    if Pname == None:
+    if Pname is None:
         Pname = FindFile('Pressure Open')
 
-    if PDname == None:
+    if PDname is None:
         PDname = FindFile('Photodiode Open')
 
     ################################################
     # Import the TDMS files corresponding to the filepaths
-    #reformats the Dataframes into usable structure (list of Dataframes)
+    # reformats the Dataframes into usable structure (list of Dataframes)
     Pressfile = TdmsFile(Pname)
     Pressdata = Pressfile.as_dataframe(time_index=True, absolute_time=False)
     Pressdata = reformat(Pressdata)
@@ -62,8 +65,8 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 
     # Initialize M_dot
     M_dot = pd.DataFrame(index=range(0, numTests), columns=Gases)
-    
-    #Finds mass flow rate for each gas on each test
+
+    # Finds mass flow rate for each gas on each test
     for Gas in Gases:
         # For each gas, defines which PT and TC it is using,
         # as well as the orifice size we are using
@@ -85,7 +88,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             TC = 3
         else:
             print('Gas Not Recognized')
-        ##Finds mass flow rate for each test
+        # Finds mass flow rate for each test
         for test in range(len(Pressdata)):
 
             m_dot = find_M_dot(Tempdata, Pressdata, test, ducer, TC,
@@ -102,15 +105,15 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                          M_dot[fuel] + M_dot[oxidizer] +
                          M_dot[diluent]).rename('Diluent'+' ('+diluent+')')
     for test in range(len(dilution)):
-        if abs(dilution[test])<1e-4:
-            dilution[test]=0.0
+        if abs(dilution[test]) < 1e-4:
+            dilution[test] = 0.0
 
     # Place the equivalence ratio and dilution data into a pandas.DataFrame
     # so that it can be easily managed/saved later
 
     Data = pd.concat([phi, dilution], axis=1)
 
-    del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot, #dilution, phi
+    del Pressdata, Tempdata, Pressfile, Tempfile, M_dot, m_dot,  # dilution,phi
 
     # Put the velocity and error data into the Data pandas.DataFrame
     # The necessary data is now all in the same place
@@ -127,9 +130,9 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
         print('The data has been saved to {0}'.format(Save_File))
     # print('Run Time:', end-start, 'seconds')
     return Data
-    
 
 if __name__ == '__main__':
+<<<<<<< HEAD
    #filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
 #    Data = mass_flow_calc(diluent='N2',
 #                         Tname = filepath + '\TC.tdms',
@@ -141,25 +144,18 @@ if __name__ == '__main__':
     
     #Plots this data so we can see what kind of curve we are getting
     #print(Data)
+=======
+    filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
+    Data = mass_flow_calc(diluent='N2',
+                          Tname=filepath + '\TC.tdms',
+                          Pname=filepath + '\PT.tdms',
+                          PDname=filepath + '\PD.tdms',
+                          save=False)
+#    Data = mass_flow_calc(diluent='N2', save=False, method='max')
+#    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
+
+    # Plots this data so we can see what kind of curve we are getting
+    # print(Data)
+>>>>>>> 78730b1089e216c14137e2b07759a8141b544bef
     Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
-              ylim=(500, 3500), xlim=[0.95,1.05])
-
-    end = time.time()
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+              ylim=(500, 3500), xlim=[0.95, 1.05])

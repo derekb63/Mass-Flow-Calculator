@@ -141,7 +141,7 @@ def reformat(data):
     labels = list(data.columns)  # test_num/channel_num
 
     # finds the number of channels recorded in the test
-    # basically looks for the max number in labels, channel_num
+    # basically looks for the max channel_num in labels (adds 1 for indexing purposes)
     numChannels = []
     for el in labels:
         x = el.split('/')
@@ -229,17 +229,12 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
 def velocity_calc(PDname, method='max'):
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
-
+    #gets data for each photodiode
     PD1 = PDdata[PDdata.columns[0::4]]
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
     PD4 = PDdata[PDdata.columns[3::4]]
-#    print(PDdata.columns)
-#    PDdata[PDdata.columns[-4:-1]].plot()
-#    PD1.plot()
-#    PD2.plot()
-#    PD3.plot()
-#    PD4.plot()
+
     del PDdata
     # Choose the method for the determination of the velocity
     if method == 'diff':
@@ -255,23 +250,26 @@ def velocity_calc(PDname, method='max'):
     else:
         sys.exit('The method you have chosen for the velicty calculation is' +
                  ' not reconized. Please select a different method and retry.')
-
+    #finds the time point at which D# is at a max
     del PD1, PD2, PD3, PD4
     t1 = D1.idxmax()
     t2 = D2.idxmax()
     t3 = D3.idxmax()
     t4 = D4.idxmax()
     del D1, D2, D3, D4
+    #lengths between photodiodes
     L1 = 0.127762
     L2 = 0.129337
     L3 = 0.130175
-
+    #takes the difference in time values to get values for each velocity
     T1 = pd.Series(t2.values - t1.values)
     T2 = pd.Series(t3.values - t2.values)
     T3 = pd.Series(t4.values - t3.values)
     V1 = L1/T1.values
     V2 = L2/T2.values
     V3 = L3/T3.values
+    
+    # measurement error calculation
     R1 = np.sqrt((-.5*(L1/T1.values**2)*1e-6)**2+(1/T1.values*0.003175)**2)
     R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.003175)**2)
     R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.003175)**2)
@@ -280,9 +278,6 @@ def velocity_calc(PDname, method='max'):
             np.vstack((V1, V2, V3, R1, R2, R3))))
     vel_data.columns = ['V1', 'V2', 'V3', 'R1', 'R2', 'R3']
 
-    # del T1, T2, T3, V1, V2, V3, R1, R2, R3, L1, L2, L3, t1, t2, t3, t4
-    # print (vel_data)
-    # plt.plot(phi, vel_data[:,0], 'x')
     return vel_data
 
 
@@ -324,3 +319,46 @@ def Fuel_Oxidizer_Ratio(fuel='C3H8', ox='N2O'):
     coeffs = np.abs(np.linalg.solve(A[:][:], [-x for x in fuel_val]))
     F_O_s = (1*MW_fuel)/(coeffs[0]*MW_ox)
     return F_O_s
+
+
+#%% These functions came from m_dot_orifice.py 
+def conv_in_m(measurement_to_convert, starting_unit, ending_unit):
+    if starting_unit == ending_unit:
+        output = measurement_to_convert
+    elif starting_unit == 'in' and ending_unit == 'm':
+        output = np.multiply(measurement_to_convert, 0.0254)
+    elif starting_unit == 'm' and ending_unit == 'in':
+        output = np.divide(measurement_to_convert, 0.0254)
+    else:
+        print('Unit combination is not recognized')
+    return output
+
+
+# Convert from Pa to Psi and from psi to Pa
+def conv_Pa_psi(value, starting_unit, ending_unit):
+    if starting_unit == ending_unit:
+        output = value
+    elif starting_unit == 'psi' and ending_unit == 'Pa':
+        output = np.multiply(value, 6894.75728)
+    elif starting_unit == 'Pa' and ending_unit == 'psi':
+        output = np.multiply(value, 0.000145037738007)
+    else:
+        print('Unit combination is not recognized')
+    return output
+
+
+def A_orf(D):
+    A_orf = np.pi / 4 * D**2
+    return A_orf
+
+
+# Takes in a gas species the desired temperature and pressure then
+# returns the density, ratio of specific heats and mean molecular weight
+def Calc_Props(Gas, T, P):
+    gas = ct.Solution('gri30.cti')
+    gas.TPX = T, P, '{0}:1'.format(Gas)
+    rho = gas.density
+    k = gas.cp_mass/gas.cv_mass
+    MW = gas.mean_molecular_weight
+    return rho, k, MW
+
