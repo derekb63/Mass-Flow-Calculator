@@ -141,7 +141,7 @@ def reformat(data):
     labels = list(data.columns)  # test_num/channel_num
 
     # finds the number of channels recorded in the test
-    # basically looks for the max number in labels, channel_num
+    # basically looks for the max channel_num in labels (adds 1 for indexing purposes)
     numChannels = []
     for el in labels:
         x = el.split('/')
@@ -229,7 +229,7 @@ def find_M_dot(Tempdata, Pressdata, test, ducer, TC, D_orifice, cals, Gas):
 def velocity_calc(PDname, method='max'):
     PDfile = TdmsFile(PDname)
     PDdata = PDfile.as_dataframe(time_index=True, absolute_time=False)
-
+    #gets data for each photodiode
     PD1 = PDdata[PDdata.columns[0::4]]
     PD2 = PDdata[PDdata.columns[1::4]]
     PD3 = PDdata[PDdata.columns[2::4]]
@@ -250,23 +250,26 @@ def velocity_calc(PDname, method='max'):
     else:
         sys.exit('The method you have chosen for the velicty calculation is' +
                  ' not reconized. Please select a different method and retry.')
-
+    #finds the time point at which D# is at a max
     del PD1, PD2, PD3, PD4
     t1 = D1.idxmax()
     t2 = D2.idxmax()
     t3 = D3.idxmax()
     t4 = D4.idxmax()
     del D1, D2, D3, D4
+    #lengths between photodiodes
     L1 = 0.127762
     L2 = 0.129337
     L3 = 0.130175
-
+    #takes the difference in time values to get values for each velocity
     T1 = pd.Series(t2.values - t1.values)
     T2 = pd.Series(t3.values - t2.values)
     T3 = pd.Series(t4.values - t3.values)
     V1 = L1/T1.values
     V2 = L2/T2.values
     V3 = L3/T3.values
+    
+    # measurement error calculation
     R1 = np.sqrt((-.5*(L1/T1.values**2)*1e-6)**2+(1/T1.values*0.003175)**2)
     R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.003175)**2)
     R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.003175)**2)

@@ -14,7 +14,9 @@ from functions import Fuel_Oxidizer_Ratio
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
-                   method='max'):
+                   method='max', dil_orifice=0.063):
+    start = time.time()
+
 
     Gases = [oxidizer, fuel, diluent]  # Species of the gas used ct form
 
@@ -75,11 +77,11 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
             TC = 2
         elif (Gas == 'Nitrogen') or (Gas == 'N2'):
             ducer = 8
-            D_orifice = 0.063  # Diameter of the orifice in INCHES
+            D_orifice = dil_orifice  # Diameter of the orifice in INCHES
             TC = 3
         elif (Gas == 'CO2') or (Gas == 'CarbonDioxide'):
             ducer = 8
-            D_orifice = 0.063  # Diameter of the orifice in INCHES
+            D_orifice = dil_orifice  # Diameter of the orifice in INCHES
             TC = 3
         else:
             print('Gas Not Recognized')
@@ -127,6 +129,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     return Data
 
 if __name__ == '__main__':
+
     filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
     Data = mass_flow_calc(diluent='N2',
                           Tname=filepath + '\TC.tdms',
@@ -138,5 +141,6 @@ if __name__ == '__main__':
 
     # Plots this data so we can see what kind of curve we are getting
     # print(Data)
+
     Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
               ylim=(500, 3500), xlim=[0.95, 1.05])
