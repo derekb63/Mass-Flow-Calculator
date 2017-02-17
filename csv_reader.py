@@ -147,7 +147,7 @@ if __name__ == '__main__':
     base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
                                             trim=True,
                                             trim_limits=(500, 3000),
-                                            plot=False)
+                                            plot=True)
     # Output the data to a nested dictionary that can be accessed using the
     # following syntax
     # prcessed_data[<dilution species ('CO2', 'N2', or 'No_dil')>][<what data
