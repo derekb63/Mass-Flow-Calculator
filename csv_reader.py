@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 from tkinter import Button, mainloop, X, Tk
 from tkinter.filedialog import askopenfilename
 
+font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 14}
+
+plt.rc('font', **font)
 
 '''
 FindFile:
@@ -117,8 +122,8 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
     # really useful
     if plot is True:
         fig = plt.figure()
-        p1, = plt.plot(CO2_data['Diluent (CO2)'], CO2_data['V1.1'], 'o')
-        p2, = plt.plot(N2_data['Diluent (N2)'], N2_data['V1.2'], 'x')
+        p1, = plt.plot(CO2_data['Diluent (CO2)'], CO2_data['V1.1'], 'go')
+        p2, = plt.plot(N2_data['Diluent (N2)'], N2_data['V1.2'], 'kx')
 
         if axis_limits is True:
             plt.xlim([0.0, 0.5])
@@ -142,9 +147,9 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
 if __name__ == '__main__':
     # Create the bins to sort the dilution species into
     bins = np.linspace(0, 1, 150)
-    file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
+    # file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
     # Get the raw data from the csv_file
-    base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
+    base_data, CO2_data, N2_data = read_csv(axis_limits=False,
                                             trim=True,
                                             trim_limits=(500, 3000),
                                             plot=True)
@@ -160,8 +165,9 @@ if __name__ == '__main__':
                       }
     fig = plt.figure()
     plt.plot(processed_data['CO2']['mean']['Dilution'],
-             processed_data['CO2']['mean']['Velocity'], 'o')
+             processed_data['CO2']['mean']['Velocity'], 'go')
 
     plt.plot(processed_data['N2']['mean']['Dilution'],
-             processed_data['N2']['mean']['Velocity'], 'x')
+             processed_data['N2']['mean']['Velocity'], 'kx', markersize=8)
     plt.show()
+    print(processed_data['No_dil'])
