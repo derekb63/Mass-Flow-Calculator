@@ -2,15 +2,10 @@
 
 import pandas as pd
 import numpy as np
+import scipy.stats.stats as sci_stats
 import matplotlib.pyplot as plt
 from tkinter import Button, mainloop, X, Tk
 from tkinter.filedialog import askopenfilename
-
-font = {'family' : 'normal',
-        'weight' : 'bold',
-        'size'   : 14}
-
-plt.rc('font', **font)
 
 '''
 FindFile:
@@ -145,15 +140,15 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
 
 
 if __name__ == '__main__':
-
+    trim_limits=(1000, 2300)
     # Create the bins to sort the dilution species into
-    bins = np.linspace(0, 1, 150)
-    # file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
+    bins = np.linspace(0, 0.5, 50)
+    file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
     # Get the raw data from the csv_file
-    base_data, CO2_data, N2_data = read_csv(axis_limits=False,
+    base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
                                             trim=True,
-                                            trim_limits=(500, 3000),
-                                            plot=True)
+                                            trim_limits=trim_limits,
+                                            plot=False)
     # Output the data to a nested dictionary that can be accessed using the
     # following syntax
     # prcessed_data[<dilution species ('CO2', 'N2', or 'No_dil')>][<what data
@@ -164,11 +159,36 @@ if __name__ == '__main__':
                                      bins=bins),
                       'No_dil': [base_data['V1'].mean(), base_data['V1'].std()]
                       }
+    
+    # Git the fit data in an array
+    CO2_x = np.array(processed_data['CO2']['mean']['Dilution'])
+    CO2_y = np.array(processed_data['CO2']['mean']['Velocity'])
+    N2_x = np.array(processed_data['N2']['mean']['Dilution'])
+    N2_y = np.array(processed_data['N2']['mean']['Velocity'])
+    # Remove nan values
+    CO2_x = CO2_x[~np.isnan(CO2_x)]
+    CO2_y = CO2_y[~np.isnan(CO2_y)]
+    N2_x = N2_x[~np.isnan(N2_x)]
+    N2_y = N2_y[~np.isnan(N2_y)]
+    # Create the curve fit 
+    CO2_fit = sci_stats.linregress(CO2_x, CO2_y)
+    N2_fit = sci_stats.linregress(N2_x, N2_y)
+    
     fig = plt.figure()
     plt.plot(processed_data['CO2']['mean']['Dilution'],
-             processed_data['CO2']['mean']['Velocity'], 'go')
+             processed_data['CO2']['mean']['Velocity'], 'k^')
 
-    plt.plot(processed_data['N2']['mean']['Dilution'],
-             processed_data['N2']['mean']['Velocity'], 'kx', markersize=8)
+    plt.plot(processed_data['N2']['mean']['Dilution']*0.95,
+             processed_data['N2']['mean']['Velocity'], 'ko',
+             markerfacecolor='None')
+    plt.plot(CO2_x,CO2_x*CO2_fit.slope+CO2_fit.intercept, '--k')
+    plt.plot(N2_x,N2_x*N2_fit.slope+N2_fit.intercept, '--k')
+    plt.xlim([0.0, 0.4])
+    plt.xlabel(r'$Y_{diluent}$', fontsize=14)
+    plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+    plt.legend([r'$CO_{2}$', r'$N_{2}$'], loc=0)
     plt.show()
     print(processed_data['No_dil'])
+    fig_path = 'C:/Users/beande.ONID/Dropbox/Apps/ShareLaTeX/Dilution Manuscript/Figures/'
+    plt.savefig(fig_path+'avg_plot')
+    
