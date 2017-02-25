@@ -117,15 +117,17 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
     # really useful
     if plot is True:
         fig = plt.figure()
-        p1, = plt.plot(CO2_data['Diluent (CO2)'], CO2_data['V1.1'], 'go')
-        p2, = plt.plot(N2_data['Diluent (N2)'], N2_data['V1.2'], 'kx')
+        p1, = plt.plot(CO2_data['Diluent (CO2)'], CO2_data['V1.1'], 'k^')
+        p2, = plt.plot(N2_data['Diluent (N2)'], N2_data['V1.2'], 'o',
+                       markerfacecolor='None', markeredgecolor='blue')
 
         if axis_limits is True:
             plt.xlim([0.0, 0.5])
             plt.ylim(trim_limits)
-        plt.xlabel(r'$Y_{diluent}$')
-        plt.ylabel('Detonation Velocity (m/s)')
-        fig.legend(handles=[p1, p2], labels=[r'$CO_{2}$', r'$N_{2}$'], loc=5)
+        plt.xlabel(r'$Y_{diluent}$', fontsize=14)
+        plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+        fig.legend(handles=[p1, p2], labels=[r'$CO_{2}$', r'$N_{2}$'], loc=0,
+                   numpoints=1)
         plt.show()
 
     # How many test values reside within the trim limits on velocity
@@ -140,7 +142,7 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
 
 
 if __name__ == '__main__':
-    trim_limits=(1000, 2300)
+    trim_limits=(1200, 2100)
     # Create the bins to sort the dilution species into
     bins = np.linspace(0, 0.5, 50)
     file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
@@ -160,35 +162,59 @@ if __name__ == '__main__':
                       'No_dil': [base_data['V1'].mean(), base_data['V1'].std()]
                       }
     
-    # Git the fit data in an array
+    # Get the fit data in an array
+    fig_path = 'C:/Users/beande.ONID/Dropbox/Apps/ShareLaTeX/Dilution Manuscript/Figures/'
+    correction = 0.95
     CO2_x = np.array(processed_data['CO2']['mean']['Dilution'])
     CO2_y = np.array(processed_data['CO2']['mean']['Velocity'])
-    N2_x = np.array(processed_data['N2']['mean']['Dilution'])
+    N2_x = np.array(processed_data['N2']['mean']['Dilution'])*(1/correction)
     N2_y = np.array(processed_data['N2']['mean']['Velocity'])
     # Remove nan values
     CO2_x = CO2_x[~np.isnan(CO2_x)]
     CO2_y = CO2_y[~np.isnan(CO2_y)]
+    chi_CO2 = CO2_x
     N2_x = N2_x[~np.isnan(N2_x)]
     N2_y = N2_y[~np.isnan(N2_y)]
+    chi_N2 = N2_x/(28*(N2_x/28+(1-N2_x)/44))
     # Create the curve fit 
     CO2_fit = sci_stats.linregress(CO2_x, CO2_y)
     N2_fit = sci_stats.linregress(N2_x, N2_y)
-    
-    fig = plt.figure()
-    plt.plot(processed_data['CO2']['mean']['Dilution'],
-             processed_data['CO2']['mean']['Velocity'], 'k^')
-
-    plt.plot(processed_data['N2']['mean']['Dilution']*0.95,
-             processed_data['N2']['mean']['Velocity'], 'ko',
-             markerfacecolor='None')
-    plt.plot(CO2_x,CO2_x*CO2_fit.slope+CO2_fit.intercept, '--k')
-    plt.plot(N2_x,N2_x*N2_fit.slope+N2_fit.intercept, '--k')
+    # Plot the data with curve fits
+    fig = plt.figure(1)
+    plt.plot(CO2_x, CO2_y, 'k^')
+    plt.plot(N2_x, N2_y, 'ko', markerfacecolor='None')
+    plt.plot(CO2_x, CO2_x*CO2_fit.slope+CO2_fit.intercept, '--k')
+    plt.plot(N2_x, N2_x*N2_fit.slope+N2_fit.intercept, '--k')
     plt.xlim([0.0, 0.4])
-    plt.xlabel(r'$Y_{diluent}$', fontsize=14)
+    plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
     plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
-    plt.legend([r'$CO_{2}$', r'$N_{2}$'], loc=0)
+    plt.legend([r'$CO_{2}$', r'$N_{2}$'], loc=0, numpoints=1)
     plt.show()
-    print(processed_data['No_dil'])
-    fig_path = 'C:/Users/beande.ONID/Dropbox/Apps/ShareLaTeX/Dilution Manuscript/Figures/'
     plt.savefig(fig_path+'avg_plot')
+    # Plot the deviation from the mean measured value
+    CO2_dev = abs(processed_data['No_dil'][0]-CO2_y)
+    N2_dev = abs(processed_data['No_dil'][0]-N2_y)
+    CO2dev_fit = sci_stats.linregress(CO2_x, CO2_dev)
+    N2dev_fit = sci_stats.linregress(N2_x, N2_dev)
+
+    plt.figure(2)
+    plt.plot(CO2_x, CO2_dev, 'k^')
+    plt.plot(N2_x, N2_dev, 'ko', markerfacecolor='None')
+
+    plt.xlim([0.0, 0.4])
+    plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
+    plt.ylabel('Velocity Suppression (m/s)', fontsize=14)
+    plt.legend([r'$CO_{2}$', r'$N_{2}$'], loc=0, numpoints=1)
+    plt.show()
+    plt.savefig(fig_path+'depression_plot')
+    print(processed_data['No_dil'])
+    f = open(fig_path+'avg_nondil_vel.tex', 'w')
+    f.write('{0}'.format(int(processed_data['No_dil'][0])))
+    f.close()
+    f = open(fig_path+'percent_CJ.tex', 'w')
+    f.write('{0}'.format(int((processed_data['No_dil'][0]/2188)*100)))
+    f.close()
+    f = open(fig_path+'fit_slope.tex', 'w')
+    f.write('{0}'.format(int(CO2_fit.slope/N2_fit.slope)))
+    f.close()
     
