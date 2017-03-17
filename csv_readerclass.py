@@ -165,13 +165,12 @@ class ProcessData:
         N2_ci.columns = ['Lower Limit', 'Upper Limit']
         N2_data = pd.merge(N2_data, N2_ci, left_index=True,
                            right_index=True)
-        
+
         base, _, _ = self.grouping()
-        print(base)
-        base_ci = stats.norm.interval(confidence, loc=base['V1'],
-                                      scale=base['V1'].std /
-                                      np.sqrt(len(row['V1'])))
-        
+        base_ci = stats.norm.interval(confidence, loc=base['V1'].mean(),
+                                      scale=base['V1'].std() /
+                                      np.sqrt(len(base['V1'])))
+        base_ci = (base_ci[0], base['V1'].mean(), base_ci[1])
         return base_ci, CO2_data, N2_data
 
     def plot_error(self):
@@ -184,7 +183,10 @@ class ProcessData:
         plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
                      yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
                      label='N2', markerfacecolor='none')
-        plt.plot(CO2['Diluent (CO2) mean'], 1)
+#        plt.plot(N2['Diluent (N2) mean'],
+#                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
+#        plt.plot(N2['Diluent (N2) mean'],
+#                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
         plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
         plt.legend()
@@ -197,5 +199,5 @@ if __name__ == '__main__':
                        bins=np.linspace(0, .5, 50))
     data.grouping()
     data.means()
-    data.confidence_intervals(confidence=.90)
-#    data.plot_error()
+    data.confidence_intervals(confidence=.95)
+    data.plot_error()
