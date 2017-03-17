@@ -31,7 +31,8 @@ class ProcessData:
         mainloop()
         return Fname
 
-    def __init__(self, file_name=None, trim_limits=(500, 3000)):
+    def __init__(self, file_name=None, trim_limits=(500, 3000),
+                 bins=np.linspace(0, .5, 50)):
         try:
             # Read the data from the csv into a Pandas DataFrame
             self.file_name = str(file_name)
@@ -41,6 +42,7 @@ class ProcessData:
             # Read the data from the csv into a Pandas DataFrame
             self.data = pd.read_csv(self.file_name)
         self.trim_limits = sorted(trim_limits)
+        self.bins = bins
 
     def stripcols(self, desired_columns=['Diluent', 'V1', 'R1']):
         self.keep_columns = []
@@ -95,12 +97,12 @@ class ProcessData:
                    numpoints=1)
         plt.show()
 
-    def grouping(self, column='Diluent', bins=np.linspace(0, .5, 50)):
+    def grouping(self, column='Diluent'):
         none, CO2, N2 = self.trimdata()
         for i in [none, CO2, N2]:
             group_col = [idx for loc, idx in enumerate(i.columns) if
                          column in idx][0]
-            i['groups'] = pd.cut(i[group_col], bins=bins)
+            i['groups'] = pd.cut(i[group_col], bins=self.bins)
         return none, CO2, N2
 
     def means(self, columns=['Dilution', 'Velocity', 'Error']):
@@ -157,26 +159,43 @@ class ProcessData:
         N2_ci = {}
         for idx, row in N2_data.iterrows():
             N2_ci[idx] = stats.norm.interval(confidence, loc=row['V mean'],
-                                              scale=row['V std'] /
-                                              np.sqrt(row['count']))
+                                             scale=row['V std'] /
+                                             np.sqrt(row['count']))
         N2_ci = pd.DataFrame.from_dict(N2_ci, orient='index')
         N2_ci.columns = ['Lower Limit', 'Upper Limit']
         N2_data = pd.merge(N2_data, N2_ci, left_index=True,
-                            right_index=True)
+                           right_index=True)
+        
+        base, _, _ = self.grouping()
+        print(base)
+        base_ci = stats.norm.interval(confidence, loc=base['V1'],
+                                      scale=base['V1'].std /
+                                      np.sqrt(len(row['V1'])))
+        
+        return base_ci, CO2_data, N2_data
 
-        return CO2_data, N2_data
     def plot_error(self):
-        CO2, N2 = self.confidence_intervals()
+        base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity vs Dilution')
         fig.clf()
-        plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'], yerr=CO2['V mean']-CO2['Lower Limit'], fmt='')
+        plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'],
+                     yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
+                     label='CO2')
+        plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
+                     yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
+                     label='N2', markerfacecolor='none')
+        plt.plot(CO2['Diluent (CO2) mean'], 1)
+        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
+        plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+        plt.legend()
         plt.show()
-        
-        
+
+
 if __name__ == '__main__':
     Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
-    data = ProcessData(file_name=Fname, trim_limits=(1200, 2100))
+    data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
+                       bins=np.linspace(0, .5, 50))
     data.grouping()
     data.means()
     data.confidence_intervals(confidence=.90)
-    data.plot_error()
+#    data.plot_error()
