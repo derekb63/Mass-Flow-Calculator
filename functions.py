@@ -186,7 +186,6 @@ def reformat(data):
             PTnum = 0
 
         mybiglist[test_num]['Gauge'+str(PTnum)] = data[name]
-
     return mybiglist
 
 

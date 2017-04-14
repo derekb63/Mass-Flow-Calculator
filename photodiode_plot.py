@@ -34,7 +34,7 @@ def signal_plot(PDname=None, method='diff'):
     # Determine the values of the 1st finite difference
     diff_val = new_data.diff()
     # Plot the desired signals
-    new_data.plot(linewidth=3)
+    new_data.plot(linewidth=3, marker='o', linestyle='None')
     # Plot locations of the maximum values of the signals
     plt.plot(new_data.idxmax(), new_data.max(), marker='o',
              linestyle='None', markersize=8, label='Max', color='black',

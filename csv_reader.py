@@ -141,12 +141,12 @@ def read_csv(file_name=None, trim=False, trim_limits=(500, 3000), plot=True,
 
 if __name__ == '__main__':
     # Create the bins to sort the dilution species into
-    bins = np.linspace(0, 1, 150)
+    bins = np.linspace(0, 1, 200)
     file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
     # Get the raw data from the csv_file
-    base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
+    base_data, CO2_data, N2_data = read_csv(file_name=None, axis_limits=False,
                                             trim=True,
-                                            trim_limits=(500, 3000),
+                                            trim_limits=(1000, 2500),
                                             plot=True)
     # Output the data to a nested dictionary that can be accessed using the
     # following syntax

@@ -19,9 +19,9 @@ import pandas as pd
 from massflowcalculator import mass_flow_calc
 import glob, os 
 #Change this variable based on which folder you want to run
-filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 17\orifice125\CO2\psi_60'
-dil_orifice=0.125
-diluent='CO2'
+#filepath='D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\March 7\diluentN2'
+dil_orifice=0.063
+diluent='N2'
 
 
 
