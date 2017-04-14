@@ -191,7 +191,33 @@ class ProcessData:
         plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
         plt.legend()
         plt.show()
-
+#        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
+#                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
+#                    'Conference/Bean_detonation_dilution/velocity.png')
+    
+    def suppression_error(self):
+        base, CO2, N2 = self.confidence_intervals()
+        fig = plt.figure('Velocity Suppression')
+        fig.clf()
+        plt.errorbar(x=CO2['Diluent (CO2) mean'],
+                     y=self.means()[0][0]-CO2['V mean'],
+                     yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
+                     label='CO2')
+        plt.errorbar(x=N2['Diluent (N2) mean'],
+                     y=self.means()[0][0]-N2['V mean'],
+                     yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
+                     label='N2', markerfacecolor='none')
+#        plt.plot(N2['Diluent (N2) mean'],
+#                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
+#        plt.plot(N2['Diluent (N2) mean'],
+#                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
+        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
+        plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+        plt.legend()
+        plt.show()
+#        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
+#                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
+#                    'Conference/Bean_detonation_dilution/suppresion.png')
 
 if __name__ == '__main__':
     Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
@@ -200,4 +226,6 @@ if __name__ == '__main__':
     data.grouping()
     data.means()
     data.confidence_intervals(confidence=.95)
+#    data.plot_error()
     data.plot_error()
+    data.suppression_error()
