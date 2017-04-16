@@ -269,9 +269,9 @@ def velocity_calc(PDname, method='max'):
     V3 = L3/T3.values
     
     # measurement error calculation
-    R1 = np.sqrt((-.5*(L1/T1.values**2)*1e-6)**2+(1/T1.values*0.003175)**2)
-    R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.003175)**2)
-    R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.003175)**2)
+    R1 = np.sqrt((-.5*(L1/T1.values**2)*1e-6)**2+(1/T1.values*0.0003175)**2)
+    R2 = np.sqrt((-.5*(L2/T2.values**2)*1e-6)**2+(1/T2.values*0.0003175)**2)
+    R3 = np.sqrt((-.5*(L3/T3.values**2)*1e-6)**2+(1/T3.values*0.0003175)**2)
 
     vel_data = pd.DataFrame(np.transpose(
             np.vstack((V1, V2, V3, R1, R2, R3))))
