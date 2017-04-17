@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from tkinter import Button, mainloop, X, Tk
 from tkinter.filedialog import askopenfilename
 from collections import Counter
+import scipy.stats.stats as sci_stats
 
 # Class version of the csv_reader function used for the
 # combustion institute conference paper
@@ -43,6 +44,7 @@ class ProcessData:
             self.data = pd.read_csv(self.file_name)
         self.trim_limits = sorted(trim_limits)
         self.bins = bins
+        self.correction = 0.95
 
     def stripcols(self, desired_columns=['Diluent', 'V1', 'R1']):
         self.keep_columns = []
@@ -73,6 +75,8 @@ class ProcessData:
         CO2 = CO2[CO2['V1.1'] > self.trim_limits[0]]
         CO2 = CO2[CO2['V1.1'] < self.trim_limits[1]]
 
+        # add in the correction factor
+#        N2['Diluent (N2)'] = N2['Diluent (N2)']*1/self.correction
         N2 = N2[N2['V1.2'] > self.trim_limits[0]]
         N2 = N2[N2['V1.2'] < self.trim_limits[1]]
         return base, CO2, N2
@@ -172,29 +176,47 @@ class ProcessData:
                                       np.sqrt(len(base['V1'])))
         base_ci = (base_ci[0], base['V1'].mean(), base_ci[1])
         return base_ci, CO2_data, N2_data
+    
+    def linefit(self):
+        CO2 = self.confidence_intervals()[1]
+        N2 = self.confidence_intervals()[2]
+        fit = []
+        fit.append(None)
+        fit.append(sci_stats.linregress(CO2[CO2.columns[0]].values[:-3],
+                                        CO2[CO2.columns[1]].values[:-3]))
+        fit.append(sci_stats.linregress(N2[N2.columns[0]].values,
+                                        N2[N2.columns[1]].values))
+        return fit
 
     def plot_error(self):
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity vs Dilution')
         fig.clf()
-        plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'],
+        plt.errorbar(x=CO2['Diluent (CO2) mean']*self.correction, y=CO2['V mean'],
                      yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
-                     label='CO2')
+                     label='CO2', linestyle ='')
         plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
                      yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
-                     label='N2', markerfacecolor='none')
+                     label='N2', markerfacecolor='none', linestyle='')
+        plt.legend(['CO2', 'N2'])
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
         plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
-        plt.legend()
         plt.show()
+        plt.plot(N2['Diluent (N2) mean'],
+                 self.linefit()[2].slope*N2['Diluent (N2) mean'] +
+                 self.linefit()[2].intercept, linestyle='--', color='black',
+                             marker=None)
+        plt.plot(CO2['Diluent (CO2) mean']*self.correction,
+                 self.linefit()[1].slope*CO2['Diluent (CO2) mean'] +
+                 self.linefit()[1].intercept, linestyle='--', color='black')
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
 #                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
 #                    'Conference/Bean_detonation_dilution/velocity.png')
-    
+
     def suppression_error(self):
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity Suppression')
@@ -223,9 +245,6 @@ if __name__ == '__main__':
     Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
     data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
                        bins=np.linspace(0, .5, 50))
-    data.grouping()
-    data.means()
-    data.confidence_intervals(confidence=.95)
-#    data.plot_error()
+    a = data.linefit()
     data.plot_error()
-    data.suppression_error()
+#    data.suppression_error()

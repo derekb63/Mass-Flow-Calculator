@@ -5,6 +5,7 @@ Created on Wed Nov  9 19:32:20 2016
 
 @author: beande
 """
+import time
 import numpy as np
 import pandas as pd
 from nptdms import TdmsFile
@@ -131,7 +132,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
 if __name__ == '__main__':
 
     filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
-    Data = mass_flow_calc(diluent='N2',
+    Data = mass_flow_calc(diluent='CO2', dil_orifice=0.063,
                           Tname=filepath + '\TC.tdms',
                           Pname=filepath + '\PT.tdms',
                           PDname=filepath + '\PD.tdms',
