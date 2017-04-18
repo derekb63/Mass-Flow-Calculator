@@ -130,15 +130,15 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     return Data
 
 if __name__ == '__main__':
-    filepath = '/media/aero-10/NETL PDE Project/PDE Project/Dilution Project/Dilution Experiment Tests/Phase 1/February 21/orifice063/CO2/psi60'
+    #filepath = '/media/aero-10/NETL PDE Project/PDE Project/Dilution Project/Dilution Experiment Tests/Phase 1/February 21/orifice063/CO2/psi60'
     #filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
-    Data = mass_flow_calc(diluent='CO2',
-                          Tname=filepath + '/TC1.tdms',
-                          Pname=filepath + '/PT1.tdms',
-                          PDname=filepath + '/PD1.tdms',
-                          save=True,method='diff')
-#    Data = mass_flow_calc(diluent='N2', save=False, method='max')
-#    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
+#    Data = mass_flow_calc(diluent='CO2',
+#                          Tname=filepath + '/TC1.tdms',
+#                          Pname=filepath + '/PT1.tdms',
+#                          PDname=filepath + '/PD1.tdms',
+#                          save=True,method='diff')
+##    Data = mass_flow_calc(diluent='N2', save=False, method='max')
+    Data = mass_flow_calc(diluent='CO2', save=True, method='diff', dil_orifice=0.063)
 
     # Plots this data so we can see what kind of curve we are getting
     # print(Data)
