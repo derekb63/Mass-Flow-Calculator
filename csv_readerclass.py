@@ -192,6 +192,8 @@ class ProcessData:
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity vs Dilution')
         fig.clf()
+        plt.plot([min(N2['Diluent (N2) mean']), max(N2['Diluent (N2) mean'])],
+                  [1918, 1918], '-r')
         plt.errorbar(x=CO2['Diluent (CO2) mean']*self.correction, y=CO2['V mean'],
                      yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
                      label='CO2', linestyle ='')
@@ -246,5 +248,5 @@ if __name__ == '__main__':
     data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
                        bins=np.linspace(0, .5, 50))
     a = data.linefit()
-#    data.plot_error()
+    data.plot_error()
 #    data.suppression_error()
