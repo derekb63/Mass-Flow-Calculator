@@ -246,5 +246,5 @@ if __name__ == '__main__':
     data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
                        bins=np.linspace(0, .5, 50))
     a = data.linefit()
-    data.plot_error()
+#    data.plot_error()
 #    data.suppression_error()
