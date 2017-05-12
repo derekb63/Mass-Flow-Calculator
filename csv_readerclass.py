@@ -192,20 +192,23 @@ class ProcessData:
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity vs Dilution')
         fig.clf()
-        plt.plot([min(N2['Diluent (N2) mean']), max(N2['Diluent (N2) mean'])],
-                  [1918, 1918], '-r')
+        plt.xlim([0.1, 0.4])
+        plt.ylim([1300, 2000])
         plt.errorbar(x=CO2['Diluent (CO2) mean']*self.correction, y=CO2['V mean'],
                      yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
                      label='CO2', linestyle ='')
         plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
                      yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
                      label='N2', markerfacecolor='none', linestyle='')
-        plt.legend(['CO2', 'N2'])
-#        plt.plot(N2['Diluent (N2) mean'],
-#                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
-#        plt.plot(N2['Diluent (N2) mean'],
-#                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
+        plt.legend(['CO2', 'N2'], numpoints=1, loc='lower right')
+        plt.plot([min(N2['Diluent (N2) mean']), max(N2['Diluent (N2) mean'])],
+                 [1918, 1918], '-r')
+        plt.plot(N2['Diluent (N2) mean'],
+                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
+        plt.plot(N2['Diluent (N2) mean'],
+                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
+#        plt.xlabel(r'$Y_{diluent}$ ', fontsize=14)
         plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
         plt.show()
         plt.plot(N2['Diluent (N2) mean'],
@@ -247,6 +250,6 @@ if __name__ == '__main__':
     Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
     data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
                        bins=np.linspace(0, .5, 50))
-    a = data.linefit()
+#    a = data.linefit()
     data.plot_error()
 #    data.suppression_error()
