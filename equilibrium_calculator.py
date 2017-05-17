@@ -46,10 +46,11 @@ if __name__ == '__main__':
     P = 101325
     T = 298
     comp = 'C3H8:1 N2O:10'
-    one = Process(target=equilibrium, args=(comp, P, T, mech))
-    comp2 = 'C3H8:2 N2O:10 CO2:3'
-    two = Process(target=equilibrium, args=(comp2, P, T, mech))
-    one.start()
-    two.start()
-    one.join()
-    two.join()    
+    diluent = np.linspace(0, 10, num=20)
+    thread_list = []
+    pool = Pool.ThreadPool(processes=4)
+    for i in diluent:
+        comp = 'C3H8:1 N2O:10 CO2:{0}'.format(i)
+        thread_list.append(Process(target=equilibrium, args=(comp, P, T, mech)))
+    [i.start() for i in thread_list]
+    [j.join() for j in thread_list]
