@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from multiprocessing import Process, Queue
 import time
+import re
 
 
 """
@@ -43,18 +44,31 @@ def equilibrium(comp, P=101325, T=298, mech='gri30.cti', q = Queue()):
 
 
 if __name__ == '__main__':
-    mech = 'gri30_highT.cti'
+    mech = ['gri30_highT.cti']
+#    mechanism = ['gri30_highT.cti', 'gri30.cti', 'CSMmech7_2.cti']
     P = 101325
     T = 298
+    Propane = 1
+    Nitrous = np.linspace(1, 13, num=30)
     comp = 'C3H8:1 N2O:10'
     diluent = np.linspace(0, 10, num=20)
+#    for mech in mechanism:
     q = Queue()
     results = []
     processes = []
-    for i in diluent:
-        comp = 'C3H8:1 N2O:10 CO2:{0}'.format(round(i, 2))
+    for i in Nitrous:
+        comp = 'C3H8:{0} N2O:{1} CO2:{2}'.format(Propane, round(i, 2), 0)
         p = Process(target=equilibrium, args=(comp, P, T, mech, q))
         processes.append(p)
         p.start()
     [results.append(q.get()) for i in processes]
     [i.join() for i in processes]
+    oxidizer = []
+    vel = []
+    for i in results:
+        oxidizer.append(float(re.findall(r'\d*\.\d+|d\+', i['Comp'])[0]))
+        vel.append(i['Speed'])
+    plt.plot(oxidizer, vel, 'x', label=mech)
+    plt.xlabel(r'$N_{2}O $ moles, $C_{3}H_{8}:1$')
+    plt.ylabel(r'Velocity (m/s)')
+    plt.legend()
