@@ -11,7 +11,7 @@ import pandas as pd
 from nptdms import TdmsFile
 from functions import reformat, find_M_dot, velocity_calc, FindFile
 from functions import Fuel_Oxidizer_Ratio
-
+import os
 
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
@@ -127,18 +127,19 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
         Data.to_csv(Save_File, mode='a')
         print('The data has been saved to {0}'.format(Save_File))
     # print('Run Time:', end-start, 'seconds')
+    print(Data['V1'])
     return Data
 
 if __name__ == '__main__':
-
-    filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
+    filepath = '/media/aero-10/NETL PDE Project/PDE Project/Dilution Project/Dilution Experiment Tests/Phase 1/August 18 Nitrogen'
+#    filepath = r'D: PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\August 25\CO2_100psi_0.125'
     Data = mass_flow_calc(diluent='CO2', dil_orifice=0.063,
-                          Tname=filepath + '\TC.tdms',
-                          Pname=filepath + '\PT.tdms',
-                          PDname=filepath + '\PD.tdms',
+                          Tname=filepath + '/TCtest.tdms',
+                          Pname=filepath + '/PTtest.tdms',
+                          PDname=filepath + '/PDtest.tdms',
                           save=False)
 #    Data = mass_flow_calc(diluent='N2', save=False, method='max')
-#    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
+#    Data = mass_flow_calc(diluent='CO2', save=False, method='diff')
 
     # Plots this data so we can see what kind of curve we are getting
     # print(Data)

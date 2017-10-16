@@ -248,7 +248,7 @@ def velocity_calc(PDname, method='max'):
         D3 = PD3
         D4 = PD4
     else:
-        sys.exit('The method you have chosen for the velicty calculation is' +
+        sys.exit('The method you have chosen for the velocity calculation is' +
                  ' not reconized. Please select a different method and retry.')
     #finds the time point at which D# is at a max
     del PD1, PD2, PD3, PD4
