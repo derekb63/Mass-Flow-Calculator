@@ -8,6 +8,7 @@ Created on Tue Mar 14 15:32:40 2017
 import pandas as pd
 import numpy as np
 from scipy import stats
+import matplotlib
 import matplotlib.pyplot as plt
 from tkinter import Button, mainloop, X, Tk
 from tkinter.filedialog import askopenfilename
@@ -189,9 +190,13 @@ class ProcessData:
         return fit
 
     def plot_error(self):
+        font = {'size': 18}
+
+        matplotlib.rc('font', **font)
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity vs Dilution')
         fig.clf()
+        
         plt.xlim([0.1, 0.4])
         plt.ylim([1300, 2000])
         plt.errorbar(x=CO2['Diluent (CO2) mean']*self.correction, y=CO2['V mean'],
@@ -207,9 +212,9 @@ class ProcessData:
                      [base[0] for i in N2['Diluent (N2) mean']], '--k')
         plt.plot(N2['Diluent (N2) mean'],
                      [base[1] for i in N2['Diluent (N2) mean']], '--k')
-        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
+        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=18)
 #        plt.xlabel(r'$Y_{diluent}$ ', fontsize=14)
-        plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+        plt.ylabel('Detonation Velocity (m/s)', fontsize=18)
         plt.show()
         plt.plot(N2['Diluent (N2) mean'],
                  self.linefit()[2].slope*N2['Diluent (N2) mean'] +
@@ -238,8 +243,8 @@ class ProcessData:
 #                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
-        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=14)
-        plt.ylabel('Detonation Velocity (m/s)', fontsize=14)
+        plt.xlabel(r'$Y_{N_{2}}$ equivalent', fontsize=20)
+        plt.ylabel('Detonation Velocity (m/s)', fontsize=20)
         plt.legend()
         plt.show()
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
@@ -252,4 +257,4 @@ if __name__ == '__main__':
                        bins=np.linspace(0, .5, 50))
 #    a = data.linefit()
     data.plot_error()
-#    data.suppression_error()
+    data.suppression_error()
