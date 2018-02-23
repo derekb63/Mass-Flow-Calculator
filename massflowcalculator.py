@@ -68,6 +68,7 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     for Gas in Gases:
         # For each gas, defines which PT and TC it is using,
         # as well as the orifice size we are using
+	# Index from 1 for ducers and TCs
         if (Gas == 'Propane') or (Gas == 'C3H8'):
             ducer = 6
             TC = 1

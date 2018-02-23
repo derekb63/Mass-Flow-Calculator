@@ -32,17 +32,17 @@ def signal_plot(PDname=None, method='diff'):
 
     new_data.index.name = 'Time (s)'
     # Determine the values of the 1st finite difference
-    diff_val = new_data.diff()
+#    diff_val = new_data.diff()
     # Plot the desired signals
-    new_data.plot(linewidth=3)
-    # Plot locations of the maximum values of the signals
-    plt.plot(new_data.idxmax(), new_data.max(), marker='o',
-             linestyle='None', markersize=8, label='Max', color='black',
-             markerfacecolor='black')
-    # Plot locations of the maximum values of the 1st finite difference
-    plt.plot(diff_val.idxmax(), np.diag(new_data.loc[diff_val.idxmax(),
-                                        new_data.columns]), marker='s',
-             linestyle='None', markersize=8, label='Grad', color='black')
+    new_data.plot('-', linewidth=3)
+#    # Plot locations of the maximum values of the signals
+#    plt.plot(new_data.idxmax(), new_data.max(), marker='o',
+#             linestyle='None', markersize=8, label='Max', color='black',
+#             markerfacecolor='black')
+#    # Plot locations of the maximum values of the 1st finite difference
+#    plt.plot(diff_val.idxmax(), np.diag(new_data.loc[diff_val.idxmax(),
+#                                        new_data.columns]), marker='s',
+#             linestyle='None', markersize=8, label='Grad', color='black')
     plt.legend()
     plt.show()
 #    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
