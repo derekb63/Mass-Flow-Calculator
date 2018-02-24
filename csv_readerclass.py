@@ -347,10 +347,11 @@ class ProcessData:
 # output from the CJ calulated properties in the SDToolbox
 # y determines the sound speed that is returned  0 == equilibrium sound speed
 # and 1 == frozen sound speed
-def frozen_sound_speed(mass_fractions, y=1):
+def frozen_sound_speed(mass_fractions, y=0):
     gas = ct.Solution('gri30.cti')
     gas.TPY = 300, 101325, mass_fractions
     out_list = sd.CJspeed(gas)
+    out_list[2].TP = 300*2.5, 101325*10
     out = sd.CJ2.equilSoundSpeeds(out_list[2])[y]
     return (mass_fractions, out)
 
@@ -405,13 +406,15 @@ if __name__ == '__main__':
 
     co2speeds = [(x[0], x[1]/co2ss[x[0]]) for x in co2speeds]
     n2speeds = [(x[0], x[1]/n2ss[x[0]]) for x in n2speeds]
+    co2error = [50/x for x in co2ss]
+    n2error = [50/x for x in n2ss]
     plt.figure()
     font = {'size': 16}
     matplotlib.rc('font', **font)
-    plt.plot([x[0] for x in n2speeds], [x[1] for x in n2speeds],'o',
-             markerfacecolor='None', label=r'$N_{2}$')
-    plt.plot([x[0] for x in co2speeds], [x[1] for x in co2speeds], 'x',
-             label=r'$CO_{2}$')
+    plt.errorbar([x[0] for x in n2speeds], [x[1] for x in n2speeds], fmt='x',
+             markerfacecolor='None', label=r'$N_{2}$', yerr=0.1)
+    plt.errorbar([x[0] for x in co2speeds], [x[1] for x in co2speeds], fmt ='o',
+             label=r'$CO_{2}$', yerr=0.1)
     plt.xlabel('Diluent mass fraction')
     plt.ylabel('Measured Velocity Normalized by \n Product Sound Speed')
     plt.tight_layout()
