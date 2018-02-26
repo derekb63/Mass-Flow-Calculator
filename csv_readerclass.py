@@ -196,7 +196,7 @@ class ProcessData:
 
 
     def gen_plot(self):
-        font = {'size': 16}
+        font = {'size': 14}
 
         matplotlib.rc('font', **font)
         base, CO2, N2 = self.confidence_intervals()
@@ -205,8 +205,28 @@ class ProcessData:
 
         plt.xlim([0.1, 0.4])
         plt.ylim([1300, 2000])
-        plt.plot(CO2['Diluent (CO2) mean']/self.spec_corr, CO2['V mean'], '^k', label='CO2')
-        plt.plot(N2['Diluent (N2) mean'], N2['V mean'],'ok', label='N2')
+        plt.plot(N2['Diluent (N2) mean'], N2['V mean'],'d',
+                    markerfacecolor='none', label='N2')
+        plt.plot(CO2['Diluent (CO2) mean'], CO2['V mean'], 'o',
+                     markerfacecolor='none', label='CO2')
+        plt.legend(loc='lower right')
+        plt.xlabel(r'$Y_{Diluent}$ ', fontsize=16)
+        plt.ylabel('Velocity (m/s)', fontsize=16)
+        plt.tight_layout()
+#        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
+#                    'International_Symposium_Paper/Figures/corrected.png')
+        plt.show()
+        plt.savefig('non_normalized_non_matched.png', dpi=500)
+        
+        fig = plt.figure('Velocity vs Dilution matched')
+        fig.clf()
+
+        plt.xlim([0.1, 0.4])
+        plt.ylim([1300, 2000])
+        plt.plot(N2['Diluent (N2) mean'], N2['V mean'],'d',
+                    markerfacecolor='none', label='N2')
+        plt.plot([x/1.368 for x in CO2['Diluent (CO2) mean']],[x for x in CO2['V mean']], 'o',
+                     markerfacecolor='none', label='CO2')
         plt.legend(loc='lower right')
         plt.xlabel(r'$Y_{N_{2} \; Equivalent}$ ', fontsize=16)
         plt.ylabel('Velocity (m/s)', fontsize=16)
@@ -214,22 +234,37 @@ class ProcessData:
 #        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
 #                    'International_Symposium_Paper/Figures/corrected.png')
         plt.show()
+        plt.savefig('non_normalized_matched.png', dpi=500)
         
-
-        fig = plt.figure('Velocity vs Dilution 2')
+#        fig = plt.figure('Velocity vs Dilution  non-Normalized')
+#        fig.clf()
+#        plt.plot(N2['Diluent (N2) mean'], N2['V mean']/self.means()[0][0], 'd',
+#                    markerfacecolor='none', label='N2')
+#        plt.plot(CO2['Diluent (CO2) mean']/self.enth_spec_corr, CO2['V mean']/self.means()[0][0],
+#        'o',markerfacecolor='none', label='CO2')
+#        plt.legend(loc='lower right')
+#        plt.xlabel(r'$Y_{N_{2} \; Equivalent}$ ', fontsize=16)
+#        plt.ylabel(r'$\frac{D}{D_o}$', fontsize=22, rotation=0, labelpad=12)
+#        plt.tight_layout()
+#        plt.savefig('non_normalized_matched.png', dpi=500)
+        
+        fig = plt.figure('Velocity vs Dilution Normalized')
         fig.clf()
-        plt.plot(CO2['Diluent (CO2) mean']/self.enth_spec_corr, CO2['V mean'], '^k', label='CO2')
-        plt.plot(N2['Diluent (N2) mean'], N2['V mean'], 'ok', label='N2')
+        plt.plot(N2['Diluent (N2) mean'], N2['V mean']/self.means()[0][0], 'd',
+                    markerfacecolor='none', label='N2')
+        plt.plot(CO2['Diluent (CO2) mean']/self.enth_spec_corr, CO2['V mean']/self.means()[0][0],
+        'o',markerfacecolor='none', label='CO2')
         plt.legend(loc='lower right')
         plt.xlabel(r'$Y_{N_{2} \; Equivalent}$ ', fontsize=16)
-        plt.ylabel('Velocity (m/s)', fontsize=16)
+        plt.ylabel(r'$\frac{D}{D_o}$', fontsize=22, rotation=0, labelpad=12)
         plt.tight_layout()
+        plt.savefig('normalized_matched.png', dpi=500)
 #        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
 #                    'International_Symposium_Paper/Figures/corrected.png')
         plt.show()
         
     def plot_error(self):
-        font = {'size': 16}
+        font = {'size': 14}
 
         matplotlib.rc('font', **font)
         base, CO2, N2 = self.confidence_intervals()
@@ -238,13 +273,13 @@ class ProcessData:
 
         plt.xlim([0.1, 0.4])
         plt.ylim([1300, 2000])
-        plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'],
-                     yerr=np.sqrt((CO2['V mean']-CO2['Lower Limit'])**2 + 49**2), fmt='^k',
-                     label='CO2', linestyle ='')
         plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
-                     yerr=np.sqrt((N2['V mean']-N2['Lower Limit'])**2 + 49**2), fmt='ok',
+                     yerr=np.sqrt((N2['V mean']-N2['Lower Limit'])**2 + 49**2), fmt='d',
                      label='N2', markerfacecolor='none', linestyle='')
-        plt.legend(['CO2', 'N2'], numpoints=1, loc='lower right')
+        plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'],
+                     yerr=np.sqrt((CO2['V mean']-CO2['Lower Limit'])**2 + 49**2), fmt='o',
+                     label='CO2', linestyle ='')
+        plt.legend(['N2', 'CO2'], numpoints=1, loc='lower right')
 #        plt.plot([min(N2['Diluent (N2) mean']), max(N2['Diluent (N2) mean'])],
 #                 [1918, 1918], '-r')
 #        plt.plot(N2['Diluent (N2) mean'],
@@ -255,13 +290,13 @@ class ProcessData:
         plt.ylabel('Velocity (m/s)', fontsize=16)
         plt.plot(sorted(N2['Diluent (N2) mean']), [self.linefit()[2].slope *
                  i + self.linefit()[2].intercept for i
-                                 in sorted(N2['Diluent (N2) mean'])], '--k')
+                                 in sorted(N2['Diluent (N2) mean'])], '--')
         plt.plot(sorted(CO2['Diluent (CO2) mean']), [self.linefit()[1].slope *
                  i + self.linefit()[1].intercept for i
-                                 in sorted(CO2['Diluent (CO2) mean'])], ':k')
+                                 in sorted(CO2['Diluent (CO2) mean'])], ':')
         plt.tight_layout()
-        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
-                    'International_Symposium_Paper/Figures/non_corrected.png')
+#        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
+#                    'International_Symposium_Paper/Figures/non_corrected.png')
         plt.show()
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
 #                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
@@ -273,31 +308,31 @@ class ProcessData:
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity Suppression')
         fig.clf()
-        plt.errorbar(x=CO2['Diluent (CO2) mean'],
-                     y=self.means()[0][0]-CO2['V mean'],
-                     yerr=CO2['V mean']-CO2['Lower Limit'], fmt='^k',
-                     label='CO2')
         plt.errorbar(x=N2['Diluent (N2) mean'],
                      y=self.means()[0][0]-N2['V mean'],
-                     yerr=N2['V mean']-N2['Lower Limit'], fmt='ok',
+                     yerr=N2['V mean']-N2['Lower Limit'], fmt='d',
                      label='N2', markerfacecolor='none')
+        plt.errorbar(x=CO2['Diluent (CO2) mean'],
+                     y=self.means()[0][0]-CO2['V mean'],
+                     yerr=CO2['V mean']-CO2['Lower Limit'], fmt='o',
+                     markerfacecolor='none', label='CO2')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{diluent}$', fontsize=16)
-        plt.ylabel('Velocity Suppression (m/s)', fontsize=16)
+        plt.ylabel('$V_{o}-V$ (m/s)', fontsize=16)
         plt.legend()
         plt.tight_layout()
-        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
-                    'International_Symposium_Paper/Figures/non_corrected_suppression.png')
+#        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
+#                    'International_Symposium_Paper/Figures/non_corrected_suppression.png')
         plt.show()
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
 #                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
 #                    'Conference/Bean_detonation_dilution/suppresion.png')
 
     def suppression(self):
-        font = {'size': 16}
+        font = {'size': 14}
         matplotlib.rc('font', **font)
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Velocity Suppression')
@@ -312,35 +347,36 @@ class ProcessData:
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{diluent}$', fontsize=16)
         plt.xticks(self.xticks)
-        plt.ylabel('Velocity Suppression (m/s)', fontsize=16)
+        plt.ylabel('$V_{o}-V$ (m/s)', fontsize=16)
         plt.legend()
         plt.tight_layout()
-        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
-                    'International_Symposium_Paper/Figures/non_corrected_suppression_non_error.png')
+#        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
+#                    'International_Symposium_Paper/Figures/non_corrected_suppression_non_error.png')
         plt.show()
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
 #                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
 #                    'Conference/Bean_detonation_dilution/suppresion.png')
 
     def normalize(self):
-        font = {'size': 16}
+        font = {'size': 14}
         matplotlib.rc('font', **font)
         base, CO2, N2 = self.confidence_intervals()
         fig = plt.figure('Normalized Velocity')
         fig.clf()
-        plt.plot(CO2['Diluent (CO2) mean'], CO2['V mean']/self.means()[0][0],
-                 '^k', label='CO2')
         plt.plot(N2['Diluent (N2) mean'], N2['V mean']/self.means()[0][0],
-                 'ok', markerfacecolor='none', label='N2')
+                 'd', markerfacecolor='none', label='N2')
+        plt.plot(CO2['Diluent (CO2) mean'], CO2['V mean']/self.means()[0][0],
+                 'o', markerfacecolor='none', label='CO2')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[0] for i in N2['Diluent (N2) mean']], '--k')
 #        plt.plot(N2['Diluent (N2) mean'],
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{diluent}$', fontsize=16)
-        plt.ylabel('Velocity Suppression (m/s)', fontsize=16)
+        plt.ylabel(r'$\frac{D}{D_o}$', fontsize=22, rotation=0, labelpad=12)
         plt.legend()
         plt.tight_layout()
         plt.show()
+        plt.savefig('normalized_raw.png', dpi=500)
 
 
 # determine the frozen sound speed of the gas behind a detonation based on the
@@ -355,14 +391,7 @@ def frozen_sound_speed(mass_fractions, y=0):
     out = sd.CJ2.equilSoundSpeeds(out_list[2])[y]
     return (mass_fractions, out)
 
-
-if __name__ == '__main__':
-    Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
-    exp_data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
-                           bins=np.linspace(0, .5, 50))
-    # Get the mean value dataframe for the experimental data
-    g = exp_data.means()
-
+def sound_speed_plot(g):
     co2_means = g[1]
     # get the numeric values of the mean concentrations for the samples
     co2vals = {x for x in set(co2_means['Diluent (CO2) mean'].values) if x == x}
@@ -381,6 +410,7 @@ if __name__ == '__main__':
     # parallel poool for the equilibrium sound speed because the CJ calcs take
     # a long time
     pool = Pool(processes=None)
+    global data
     try:
         data
     except NameError:
@@ -406,29 +436,68 @@ if __name__ == '__main__':
 
     co2speeds = [(x[0], x[1]/co2ss[x[0]]) for x in co2speeds]
     n2speeds = [(x[0], x[1]/n2ss[x[0]]) for x in n2speeds]
+
     co2error = [50/x for x in co2ss]
     n2error = [50/x for x in n2ss]
-    plt.figure()
-    font = {'size': 16}
-    matplotlib.rc('font', **font)
-    plt.errorbar([x[0] for x in n2speeds], [x[1] for x in n2speeds], fmt='x',
-             markerfacecolor='None', label=r'$N_{2}$', yerr=0.1)
-    plt.errorbar([x[0] for x in co2speeds], [x[1] for x in co2speeds], fmt ='o',
-             label=r'$CO_{2}$', yerr=0.1)
-    plt.xlabel('Diluent mass fraction')
-    plt.ylabel('Measured Velocity Normalized by \n Product Sound Speed')
+#    fig, ax = plt.subplots()
+#    font = {'size': 14}
+#    matplotlib.rc('font', **font)
+#    ax.errorbar([x[0] for x in n2speeds], [x[1] for x in n2speeds], fmt='d',
+#             markerfacecolor='None', label=r'$N_{2}$', yerr=0.1)
+#    ax.errorbar([x[0] for x in co2speeds], [x[1] for x in co2speeds], fmt ='o',
+#             label=r'$CO_{2}$', yerr=0.1, markerfacecolor='none')
+#    plt.xlabel(r'$Y_{diluent}$', fontsize=18)
+#    plt.ylabel(r'$\frac{D}{C_{o}}$', rotation=0, fontsize=22, labelpad=12)
+#    plt.tight_layout()
+#    plt.legend()
+#    plt.show()
+#    plt.savefig('sound_speed_error_bars.png', dpi=500)
+
+    fig, ax = plt.subplots()
+    ax.plot([x[0] for x in n2speeds], [x[1] for x in n2speeds],'d',
+             markerfacecolor='None', label=r'$N_{2}$')
+    ax.plot([x[0] for x in co2speeds], [x[1] for x in co2speeds],'o',
+             label=r'$CO_{2}$', markerfacecolor='none')
+    plt.xlabel(r'$Y_{diluent}$', fontsize=18)
+    plt.ylabel(r'$\frac{D}{C_{o}}$', rotation=0, fontsize=22, labelpad=12)
     plt.tight_layout()
     plt.legend()
     plt.show()
+    plt.savefig('sound_speed.png', dpi=500)
+    
+    fig, ax = plt.subplots()
+    ax.plot([x[0] for x in n2speeds], [x[1] for x in n2speeds],'d',
+             markerfacecolor='None', label=r'$N_{2}$')
+    ax.plot([x[0]/1.368 for x in co2speeds], [x[1] for x in co2speeds],'o',
+             label=r'$CO_{2}$', markerfacecolor='none')
+    plt.xlabel(r'$Y_{N_{2} \; Equivalent}$ ', fontsize=16)
+    plt.ylabel(r'$\frac{D}{C_{o}}$', rotation=0, fontsize=22, labelpad=12)
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+    plt.savefig('sound_speed_matched.png', dpi=500)
+    return None
+
+
+if __name__ == '__main__':
+    Fname = '/home/aero-10/Documents/Mass-Flow-Calculator/Compiled test data.csv'
+    exp_data = ProcessData(file_name=Fname, trim_limits=(1200, 2100),
+                           bins=np.linspace(0, .5, 50))
+    # Get the mean value dataframe for the experimental data
+    g = exp_data.means()
+    sound_speed_plot(g)
+    
+    
+    
 #    a = exp_data.confidence_intervals()
-#    exp_data.normalize()
+    exp_data.normalize()
 #    exp_data.plot()
 #    a = exp_data.linefit()
 #    exp_data.plot_error()
-#    exp_data.gen_plot()
-#   exp_data.suppression()
+    exp_data.gen_plot()
+#    exp_data.suppression()
 #    exp_data.plot_error()
-#    exp_data.suppression_error()
+#   exp_data.suppression_error()
 #    data = pd.DataFrame.from_csv('../data.csv')
 #    plt.xlim([0, 0.5])
 #    plt.plot(data[' Y_n2'], (data[' CJ_n2'][0]-data[' CJ_n2']))
