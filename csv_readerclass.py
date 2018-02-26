@@ -273,11 +273,15 @@ class ProcessData:
 
         plt.xlim([0.1, 0.4])
         plt.ylim([1300, 2000])
+        n2error = np.sqrt((N2['V mean']-N2['Lower Limit'])**2 + 49**2)
+        n2error.fillna(49, inplace=True)
+        co2error = np.sqrt((CO2['V mean']-CO2['Lower Limit'])**2 + 49**2)
+        co2error.fillna(49, inplace=True)
         plt.errorbar(x=N2['Diluent (N2) mean'], y=N2['V mean'],
-                     yerr=np.sqrt((N2['V mean']-N2['Lower Limit'])**2 + 49**2), fmt='d',
+                     yerr=n2error, fmt='d',
                      label='N2', markerfacecolor='none', linestyle='')
         plt.errorbar(x=CO2['Diluent (CO2) mean'], y=CO2['V mean'],
-                     yerr=np.sqrt((CO2['V mean']-CO2['Lower Limit'])**2 + 49**2), fmt='o',
+                     yerr=co2error, fmt='o',
                      label='CO2', linestyle ='')
         plt.legend(['N2', 'CO2'], numpoints=1, loc='lower right')
 #        plt.plot([min(N2['Diluent (N2) mean']), max(N2['Diluent (N2) mean'])],
@@ -288,16 +292,17 @@ class ProcessData:
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{diluent}$ ', fontsize=16)
         plt.ylabel('Velocity (m/s)', fontsize=16)
-        plt.plot(sorted(N2['Diluent (N2) mean']), [self.linefit()[2].slope *
-                 i + self.linefit()[2].intercept for i
-                                 in sorted(N2['Diluent (N2) mean'])], '--')
-        plt.plot(sorted(CO2['Diluent (CO2) mean']), [self.linefit()[1].slope *
-                 i + self.linefit()[1].intercept for i
-                                 in sorted(CO2['Diluent (CO2) mean'])], ':')
+#        plt.plot(sorted(N2['Diluent (N2) mean']), [self.linefit()[2].slope *
+#                 i + self.linefit()[2].intercept for i
+#                                 in sorted(N2['Diluent (N2) mean'])], '--')
+#        plt.plot(sorted(CO2['Diluent (CO2) mean']), [self.linefit()[1].slope *
+#                 i + self.linefit()[1].intercept for i
+#                                 in sorted(CO2['Diluent (CO2) mean'])], ':')
         plt.tight_layout()
 #        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
 #                    'International_Symposium_Paper/Figures/non_corrected.png')
         plt.show()
+        plt.savefig('error_plot.png', dpi=500)
 #        plt.savefig('/run/user/1000/gvfs/dav:host=dav.box.com,ssl=true,' +
 #                    'prefix=%2Fdav/Blunck Group/10th Annual Combustion ' +
 #                    'Conference/Bean_detonation_dilution/velocity.png')
@@ -485,16 +490,16 @@ if __name__ == '__main__':
                            bins=np.linspace(0, .5, 50))
     # Get the mean value dataframe for the experimental data
     g = exp_data.means()
-    sound_speed_plot(g)
+#    sound_speed_plot(g)
     
     
     
 #    a = exp_data.confidence_intervals()
-    exp_data.normalize()
+#    exp_data.normalize()
 #    exp_data.plot()
 #    a = exp_data.linefit()
-#    exp_data.plot_error()
-    exp_data.gen_plot()
+    exp_data.plot_error()
+#    exp_data.gen_plot()
 #    exp_data.suppression()
 #    exp_data.plot_error()
 #   exp_data.suppression_error()
