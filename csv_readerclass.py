@@ -292,12 +292,12 @@ class ProcessData:
 #                     [base[1] for i in N2['Diluent (N2) mean']], '--k')
         plt.xlabel(r'$Y_{diluent}$ ', fontsize=16)
         plt.ylabel('Velocity (m/s)', fontsize=16)
-#        plt.plot(sorted(N2['Diluent (N2) mean']), [self.linefit()[2].slope *
-#                 i + self.linefit()[2].intercept for i
-#                                 in sorted(N2['Diluent (N2) mean'])], '--')
-#        plt.plot(sorted(CO2['Diluent (CO2) mean']), [self.linefit()[1].slope *
-#                 i + self.linefit()[1].intercept for i
-#                                 in sorted(CO2['Diluent (CO2) mean'])], ':')
+        plt.plot(sorted(N2['Diluent (N2) mean']), [self.linefit()[2].slope *
+                 i + self.linefit()[2].intercept for i
+                                 in sorted(N2['Diluent (N2) mean'])], 'C0--')
+        plt.plot(sorted(CO2['Diluent (CO2) mean']), [self.linefit()[1].slope *
+                 i + self.linefit()[1].intercept for i
+                                 in sorted(CO2['Diluent (CO2) mean'])], 'C1:')
         plt.tight_layout()
 #        plt.savefig('/home/aero-10/Dropbox/Apps/ShareLaTeX/' +
 #                    'International_Symposium_Paper/Figures/non_corrected.png')
