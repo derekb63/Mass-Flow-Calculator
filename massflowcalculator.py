@@ -12,6 +12,34 @@ from functions import reformat, find_M_dot, velocity_calc, FindFile
 from functions import Fuel_Oxidizer_Ratio
 
 
+'''
+This code is the main fuction for the massflowcalculator that brings all of the 
+functions together. To run the code call the mass_flow_calc function with the 
+required inputs.
+
+Inputs:
+    fuel: a string readable by cantera that denotes the fuel species
+    oxidizer: a cantera readable string that denotes the oxidizer species
+    diluent: a cantera readable string that denotes the oxidizer species
+    Tname: a filepath sting that points to the tdms file that contains the 
+           temperature data from the experiment
+    Pname:  a filepath sting that points to the tdms file that contains the 
+           pressure data from the experiment
+    PDname:  a filepath sting that points to the tdms file that contains the 
+           photodiode data from the experiment
+    save: boolean that determines if the output data is saved as a csv in the
+          PDname directory
+    method: max or diff strings to state which method to use for the
+            velocity determination
+    dil_orifice: diameter of the orifice used for metering the diluent
+                 during the tests
+
+Outputs:
+    Data: the caluclated data values for the input data. the data contains the
+          equivalence ratio, dilution mass fraction, velocity and the velocity
+          error. If the fucntion is passed a true value for the save varaible
+          the Data dataframe will be saved as a csv.
+'''
 def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
                    Tname=None, Pname=None, PDname=None, save=True,
                    method='max', dil_orifice=0.063):
