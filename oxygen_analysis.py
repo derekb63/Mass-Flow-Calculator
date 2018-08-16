@@ -80,23 +80,53 @@ def get_pressure_cal(serial_number):
 
 
 def velocity_calculation(photodiode_data):
-    
-    def v_calc(signals, spacing=0.0762, sample_spacing=1e-6):
+    '''
+        Calculate the velocity of the detonation wave from the photodiode
+        signals
+        
+        Inputs:
+            photodiode_data: the dataframe with the raw photodiode_data in it
+        
+        Outputs:
+            velocities: a list containing a tuple of arrays that contains the
+                        velocity data. The list elements are data for each fire
+                        and the array elements correspond to the two velocities
+                        from the photodiode signals. The first element of the
+                        tuple contains the max gradient method of velocity
+                        caclulation and the second element contains the
+                        maximum value calculation
+    '''
+    def v_calc(signals, spacing=0.0762, sample_frequency=1e-6):
+        '''
+            Calculate the velocity based on single test signals
+            
+            Inputs:
+                signals: the pandas dataframe that contains the photdiode data
+                         for one test
+                spacing: the distance between the photodiodes
+                sample_frequency: the data sampling frequency
+        '''
+        # Determine the number of points between the maximum value and 
+        # the maximum gradient
         difference_diff = np.diff(signals.diff().idxmax().values)
         difference_max = np.diff(signals.idxmax().values)
-        return (spacing/(sample_spacing*difference_diff),
-                spacing/(sample_spacing*difference_max))
+        # caclulate the valocity using the input parameters
+        return (spacing/(sample_frequency*difference_diff),
+               spacing/(sample_frequency*difference_max))
     
+    # Take out all of the time columns and the coil data if it exists
     photodiode_data = photodiode_data.loc[:,
                                            [x for x in photodiode_data.columns
                                             if 'time' not in x.lower()
                                             and 'coil' not in x.lower()]]
+    # sort the data by test using the column names. This sorts the columns into
+    # similar tests based on the column headers in the pandas dataframe
+    # that contains the data
     grouped_columns = [list(g) for k, g in groupby(photodiode_data.columns,
-                       key=lambda x: x[0:2])]
-    grouped_data = [photodiode_data.loc[:, x] for x in grouped_columns]
-    data = map(v_calc, grouped_data)
-    
-    return list(data)
+                       key=lambda x: x[0:-2])]
+    # map the test data to the v_calc function to get the velocities
+    return list(map(v_calc,
+                    [photodiode_data.loc[:, x] for x in grouped_columns]))
 
 
 if __name__ == '__main__':
@@ -111,6 +141,8 @@ if __name__ == '__main__':
 #            velocity_data[i] = data.loc[:, 'Test_{0}   Voltage_0'.format(i):'Test_{0}   Voltage_2'.format(i)]
     _, _, photo_data = group_channels(import_data(filename))
     data = velocity_calculation(photo_data)
+    del photo_data
+    
 
     # rename the pressure transducer channels with the pressure tranducer 
     # serial number
