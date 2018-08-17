@@ -134,20 +134,10 @@ def velocity_calculation(photodiode_data):
         return (spacing/(sample_frequency*difference_diff),
                spacing/(sample_frequency*difference_max))
     
-    # Take out all of the time columns and the coil data if it exists
-#    photodiode_data = photodiode_data.loc[:,
-#                                           [x for x in photodiode_data.columns
-#                                            if 'time' not in x.lower()
-#                                            and 'coil' not in x.lower()]]
-    # sort the data by test using the column names. This sorts the columns into
-    # similar tests based on the column headers in the pandas dataframe
-    # that contains the data
-#    grouped_columns = [list(g) for k, g in groupby(photodiode_data.columns,
-#                       key=lambda x: x[0:-2])]
-    grouped_columns = photodiode_data.loc[:, list(chain(column_grouper(photodiode_data.columns)))]
     # map the test data to the v_calc function to get the velocities
     return list(map(v_calc,
-                    [photodiode_data.loc[:, x] for x in grouped_columns]))
+                    [photodiode_data.loc[:, x] for
+                     x in column_grouper(photodiode_data.columns)]))
 
 
 if __name__ == '__main__':
