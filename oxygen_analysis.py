@@ -4,14 +4,11 @@ Created on Mon Jul 16 10:47:36 2018
 
 @author: derek
 """
-import os, re, sys
+import re
 import numpy as np
-import pandas as pd
 from nptdms import TdmsFile
-from functions import reformat, find_M_dot, velocity_calc, FindFile
-from functions import Fuel_Oxidizer_Ratio
-from itertools import groupby, chain
-from multiprocessing import Pool, TimeoutError
+from itertools import groupby
+
 
 '''
 this code is for the analysis of the oxygen-pde data based on the new data
@@ -138,7 +135,24 @@ def velocity_calculation(photodiode_data):
     return list(map(v_calc,
                     [photodiode_data.loc[:, x] for
                      x in column_grouper(photodiode_data.columns)]))
+                 
 
+def orifice_mass_flow_rates(flow_data, ox_species='O2', fuel_species='CH4'):
+    '''
+        Format the data collected for the oxygen PDE in a manner that can
+        utilize the existing functions developed for the dilution PDE
+        
+        Inputs:
+            flow_data: A pandas dataframe that contains the pressure and
+                        temperature data for the tests
+        Outputs:
+            mass_flow_rate: the mass flow rate through the orifice for the input data
+    '''
+    flow_sorting = [sorted(x.columns) for x in flow_data]
+    flow_sorting = [(x[0:2], x[2:]) for x in flow_sorting]
+    
+    flow_rates = {oxidizer: None, fuel: None}
+    return flow_rates
 
 if __name__ == '__main__':
     filename = 'C:/Users/derek/Desktop/8_15_2018/test.tdms'
@@ -154,7 +168,4 @@ if __name__ == '__main__':
     data = velocity_calculation(photo_data)
     #del photo_data
     
-
-    # rename the pressure transducer channels with the pressure tranducer 
-    # serial number
-    
+    # TODO: The column grouper and group channels functions are pretty much redundant
