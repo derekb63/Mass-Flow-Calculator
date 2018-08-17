@@ -10,7 +10,7 @@ import pandas as pd
 from nptdms import TdmsFile
 from functions import reformat, find_M_dot, velocity_calc, FindFile
 from functions import Fuel_Oxidizer_Ratio
-from itertools import groupby
+from itertools import groupby, chain
 from multiprocessing import Pool, TimeoutError
 
 '''
@@ -41,7 +41,7 @@ def import_data(filepath):
         new_name = re.sub(r"\s+", '_', new_name)
         new_columns[names]  = new_name
 
-    return test_data .rename(columns=new_columns)
+    return test_data.rename(columns=new_columns)
 
 def group_channels(data):
     def grouper(data):
@@ -58,9 +58,9 @@ def group_channels(data):
         else:
             pde_channel_names.append(column)
 
-    return data.loc[:, predet_channel_names],\
-           data.loc[:, pde_channel_names],\
-           data.loc[:, photodiode_channel_names]
+    return data.loc[:, predet_channel_names].dropna(),\
+           data.loc[:, pde_channel_names].dropna(),\
+           data.loc[:, photodiode_channel_names].dropna()
 
 
 def get_pressure_cal(serial_number):
@@ -77,6 +77,26 @@ def get_pressure_cal(serial_number):
                           '1731910205': [215322880.9, 863637.3]
                           }
     return pressure_cal_curves[serial_number]
+
+
+def column_grouper(column_list):
+    '''
+     Take in a list of column headers, remove the time columns and organize the
+     list by test and return a list of lists where each sublist contains all of
+     the column names for each test. 
+
+        Inputs:
+            column_list: a list of stings that contain the names of the
+                         column titles for the pandas dataframe that is being
+                         analyised
+        Outputs:
+            a list of lists that contains the groups of column names organized
+            by the first few letters
+    '''
+    return [list(g) for k,
+             g in groupby([x for x in column_list if 'time'
+                           not in x.lower() and 'coil' not in x.lower()],
+            key=lambda x: x[0:4])]
 
 
 def velocity_calculation(photodiode_data):
@@ -115,15 +135,16 @@ def velocity_calculation(photodiode_data):
                spacing/(sample_frequency*difference_max))
     
     # Take out all of the time columns and the coil data if it exists
-    photodiode_data = photodiode_data.loc[:,
-                                           [x for x in photodiode_data.columns
-                                            if 'time' not in x.lower()
-                                            and 'coil' not in x.lower()]]
+#    photodiode_data = photodiode_data.loc[:,
+#                                           [x for x in photodiode_data.columns
+#                                            if 'time' not in x.lower()
+#                                            and 'coil' not in x.lower()]]
     # sort the data by test using the column names. This sorts the columns into
     # similar tests based on the column headers in the pandas dataframe
     # that contains the data
-    grouped_columns = [list(g) for k, g in groupby(photodiode_data.columns,
-                       key=lambda x: x[0:-2])]
+#    grouped_columns = [list(g) for k, g in groupby(photodiode_data.columns,
+#                       key=lambda x: x[0:-2])]
+    grouped_columns = photodiode_data.loc[:, list(chain(column_grouper(photodiode_data.columns)))]
     # map the test data to the v_calc function to get the velocities
     return list(map(v_calc,
                     [photodiode_data.loc[:, x] for x in grouped_columns]))
@@ -139,9 +160,9 @@ if __name__ == '__main__':
 #            velocity_data[i] = data.loc[:, 'Test_  Voltage_0':'Test_  Voltage_2']
 #        else:    
 #            velocity_data[i] = data.loc[:, 'Test_{0}   Voltage_0'.format(i):'Test_{0}   Voltage_2'.format(i)]
-    _, _, photo_data = group_channels(import_data(filename))
+    predet_data, pde_data, photo_data = group_channels(import_data(filename))
     data = velocity_calculation(photo_data)
-    del photo_data
+    #del photo_data
     
 
     # rename the pressure transducer channels with the pressure tranducer 
