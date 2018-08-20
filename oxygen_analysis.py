@@ -8,6 +8,8 @@ import re
 import numpy as np
 from nptdms import TdmsFile
 from itertools import groupby
+from functions import mass_flow
+import pandas as pd
 
 
 '''
@@ -55,12 +57,12 @@ def group_channels(data):
         else:
             pde_channel_names.append(column)
 
-    return data.loc[:, predet_channel_names].dropna(),\
-           data.loc[:, pde_channel_names].dropna(),\
-           data.loc[:, photodiode_channel_names].dropna()
+    return data.loc[:, predet_channel_names],\
+           data.loc[:, pde_channel_names],\
+           data.loc[:, photodiode_channel_names]
 
 
-def get_pressure_cal(serial_number):
+def get_pressure(serial_number, current_value):
     '''
         Return the calibration constants for a selected pressure transducer.
         The constants are stored by the serial number 
@@ -69,11 +71,13 @@ def get_pressure_cal(serial_number):
                           '7122121':    [34455.79, -66451.671],
                           '071015D091': [214971.2489, -86260.085],
                           '071015D085': [215260.828 , -864671.512],
-                          '1731910192': [215322880.9, 863637.3],
-                          '1731910208': [215322880.9, 863637.3],
-                          '1731910205': [215322880.9, 863637.3]
+                          '1731910192': [215322880.9, -863637.3],
+                          '1731910208': [215322880.9, -863637.3],
+                          '1731910205': [215322880.9, -863637.3]
                           }
-    return pressure_cal_curves[serial_number]
+    pressure_value = pressure_cal_curves[serial_number][0]*current_value +\
+                     pressure_cal_curves[serial_number][1]
+    return pressure_value
 
 
 def column_grouper(column_list):
@@ -137,7 +141,8 @@ def velocity_calculation(photodiode_data):
                      x in column_grouper(photodiode_data.columns)]))
                  
 
-def orifice_mass_flow_rates(flow_data, ox_species='O2', fuel_species='CH4'):
+def orifice_mass_flow_rates(flow_data, ox_ducer_serial, fuel_ducer_serial,
+                            ox_species='O2', fuel_species='CH4'):
     '''
         Format the data collected for the oxygen PDE in a manner that can
         utilize the existing functions developed for the dilution PDE
@@ -148,11 +153,24 @@ def orifice_mass_flow_rates(flow_data, ox_species='O2', fuel_species='CH4'):
         Outputs:
             mass_flow_rate: the mass flow rate through the orifice for the input data
     '''
-    flow_sorting = [sorted(x.columns) for x in flow_data]
+    flow_sorting = [sorted(x) for x in column_grouper(flow_data)]
     flow_sorting = [(x[0:2], x[2:]) for x in flow_sorting]
-    
-    flow_rates = {oxidizer: None, fuel: None}
-    return flow_rates
+    avg_values = {}
+    idx = 0
+    for fuel, ox  in flow_sorting:
+        avg_values[idx] = {fuel_species:
+                          {'pressure': get_pressure(fuel_ducer_serial,
+                                                   flow_data.loc[:, fuel].mean().values[0]),
+                           'temp':flow_data.loc[:, fuel].mean().values[1]},
+                           ox_species:
+                          {'pressure': get_pressure(ox_ducer_serial, 
+                                                    flow_data.loc[:, ox].mean().values[0]),
+                           'temp': flow_data.loc[:, ox].mean().values[1]}}
+        idx += 1
+        
+    return avg_values
+
+
 
 if __name__ == '__main__':
     filename = 'C:/Users/derek/Desktop/8_15_2018/test.tdms'
@@ -164,8 +182,14 @@ if __name__ == '__main__':
 #            velocity_data[i] = data.loc[:, 'Test_  Voltage_0':'Test_  Voltage_2']
 #        else:    
 #            velocity_data[i] = data.loc[:, 'Test_{0}   Voltage_0'.format(i):'Test_{0}   Voltage_2'.format(i)]
-    predet_data, pde_data, photo_data = group_channels(import_data(filename))
-    data = velocity_calculation(photo_data)
+    try:
+        type(predet_data)
+    except NameError:
+        predet_data, pde_data, photo_data = group_channels(import_data(filename))
+#    data = velocity_calculation(photo_data)
+    predet_mass_flow = orifice_mass_flow_rates(predet_data,
+                                               '1731910192',
+                                               '1731910208')
     #del photo_data
     
     # TODO: The column grouper and group channels functions are pretty much redundant
