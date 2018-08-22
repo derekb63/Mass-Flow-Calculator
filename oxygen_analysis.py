@@ -8,8 +8,11 @@ import re
 import numpy as np
 from nptdms import TdmsFile
 from itertools import groupby
-from functions import mass_flow
+from functions import mass_flow, A_orf, Calc_Props
 import pandas as pd
+import cantera as ct
+import scipy.signal as signal
+import matplotlib.pyplot as plt
 
 
 '''
@@ -18,6 +21,7 @@ storage method that stores all of the data in a single tdms file rather than
 three separate files. Thsi process started with the data collected 7_11_2018.
 '''
 
+R = ct.gas_constant / 1000  # Gas constant (kPa m^3/kmol-K)
 
 def import_data(filepath):
     """
@@ -100,6 +104,12 @@ def column_grouper(column_list):
             key=lambda x: x[0:4])]
 
 
+def butter_filter(data, n=3, wn=0.01):
+    b, a = signal.butter(n, wn, output='ba', btype='lowpass')
+    return signal.filtfilt(b, a, data)
+    
+
+
 def velocity_calculation(photodiode_data):
     '''
         Calculate the velocity of the detonation wave from the photodiode
@@ -131,17 +141,17 @@ def velocity_calculation(photodiode_data):
         # the maximum gradient
         difference_diff = np.diff(signals.diff().idxmax().values)
         difference_max = np.diff(signals.idxmax().values)
+
         # caclulate the valocity using the input parameters
         return (spacing/(sample_frequency*difference_diff),
                spacing/(sample_frequency*difference_max))
-    
     # map the test data to the v_calc function to get the velocities
     return list(map(v_calc,
-                    [photodiode_data.loc[:, x] for
+                    [photodiode_data.loc[:, x].apply(butter_filter, axis=0) for
                      x in column_grouper(photodiode_data.columns)]))
                  
 
-def orifice_mass_flow_rates(flow_data, ox_ducer_serial, fuel_ducer_serial,
+def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
                             ox_species='O2', fuel_species='CH4'):
     '''
         Format the data collected for the oxygen PDE in a manner that can
@@ -151,7 +161,9 @@ def orifice_mass_flow_rates(flow_data, ox_ducer_serial, fuel_ducer_serial,
             flow_data: A pandas dataframe that contains the pressure and
                         temperature data for the tests
         Outputs:
-            mass_flow_rate: the mass flow rate through the orifice for the input data
+            avg_values: a dictionary with a key for each test number that
+                        contains the average temperature and pressure for
+                        the fuel and oxidizer for each test 
     '''
     flow_sorting = [sorted(x) for x in column_grouper(flow_data)]
     flow_sorting = [(x[0:2], x[2:]) for x in flow_sorting]
@@ -167,13 +179,20 @@ def orifice_mass_flow_rates(flow_data, ox_ducer_serial, fuel_ducer_serial,
                                                     flow_data.loc[:, ox].mean().values[0]),
                            'temp': flow_data.loc[:, ox].mean().values[1]}}
         idx += 1
-        
     return avg_values
 
 
+def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter):
+    A_fuel_orf = A_orf(fuel_orifice_diameter)
+    A_ox_orifice = A_orf(ox_orifice_diameter)
+    rho, k, MW = calc_props(gas, T, P)
+    for key in property_data.keys():
+        pass
+    return data
+
 
 if __name__ == '__main__':
-    filename = 'C:/Users/derek/Desktop/8_15_2018/test.tdms'
+    filename = 'C:/Users/derek/Desktop/8_21_2018/test.tdms'
     velocity_data = [None]*19
 #    data = import_data(filename)
     
@@ -186,10 +205,14 @@ if __name__ == '__main__':
         type(predet_data)
     except NameError:
         predet_data, pde_data, photo_data = group_channels(import_data(filename))
-#    data = velocity_calculation(photo_data)
-    predet_mass_flow = orifice_mass_flow_rates(predet_data,
-                                               '1731910192',
-                                               '1731910208')
+
+    data = velocity_calculation(photo_data)
+#    filter_example = butter_filter(photo_data[column_grouper(photo_data)[0][0]].values)
+#    plt.plot(filter_example)
+#    plt.plot(photo_data[column_grouper(photo_data)[0][0]].values)
+#    predet_press_temp = flow_temp_press(predet_data,
+#                                               '1731910192',
+#                                               '1731910208')
     #del photo_data
     
     # TODO: The column grouper and group channels functions are pretty much redundant
