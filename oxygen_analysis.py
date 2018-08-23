@@ -8,8 +8,7 @@ import re
 import numpy as np
 from nptdms import TdmsFile
 from itertools import groupby
-from functions import mass_flow, A_orf, Calc_Props
-import pandas as pd
+from functions import mass_flow, A_orf, Calc_Props, Fuel_Oxidizer_Ratio
 import cantera as ct
 import scipy.signal as signal
 import matplotlib.pyplot as plt
@@ -56,8 +55,10 @@ def group_channels(data):
     for column in data.columns:
         if 'predet' in column.lower():
             predet_channel_names.append(column)
-        if 'photo' in column.lower() or 'coil' in column.lower():
+        elif 'photo' in column.lower() or 'coil' in column.lower():
             photodiode_channel_names.append(column)
+        elif 'time' in column.lower():
+            pass
         else:
             pde_channel_names.append(column)
 
@@ -71,8 +72,8 @@ def get_pressure(serial_number, current_value):
         Return the calibration constants for a selected pressure transducer.
         The constants are stored by the serial number 
     '''
-    pressure_cal_curves ={'7122122':    [34537.50, -70360.998],
-                          '7122121':    [34455.79, -66451.671],
+    pressure_cal_curves ={'7122121':    [344593, -66699],
+                          '7122122':    [345375.677, -70360.9982],
                           '071015D091': [214971.2489, -86260.085],
                           '071015D085': [215260.828 , -864671.512],
                           '1731910192': [215322880.9, -863637.3],
@@ -101,7 +102,7 @@ def column_grouper(column_list):
     return [list(g) for k,
              g in groupby([x for x in column_list if 'time'
                            not in x.lower() and 'coil' not in x.lower()],
-            key=lambda x: x[0:4])]
+            key=lambda x: x[0:3])]
 
 
 def butter_filter(data, n=3, wn=0.01):
@@ -167,6 +168,7 @@ def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
     '''
     flow_sorting = [sorted(x) for x in column_grouper(flow_data)]
     flow_sorting = [(x[0:2], x[2:]) for x in flow_sorting]
+
     avg_values = {}
     idx = 0
     for fuel, ox  in flow_sorting:
@@ -182,17 +184,53 @@ def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
     return avg_values
 
 
-def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter):
+def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter,
+                    tube_id=0.004572, c_d=0.99, P_downstream=101325,
+                    R=ct.gas_constant / 1000 ):
     A_fuel_orf = A_orf(fuel_orifice_diameter)
-    A_ox_orifice = A_orf(ox_orifice_diameter)
-    rho, k, MW = calc_props(gas, T, P)
-    for key in property_data.keys():
-        pass
-    return data
+    A_ox_orf = A_orf(ox_orifice_diameter)
+    A_tube = A_orf(tube_id)
+#    rho, k, MW = Calc_Props(Gas, T, P)
+    species = list(set((tuple(property_data[x].keys())\
+              for x in property_data.keys())))[0]  
+    for key, item in property_data.items():
+        for gas in species:
+            rho, k, MW = Calc_Props(gas, item[gas]['temp']+273,
+                                    item[gas]['pressure'])
+            
+            if 'h' in gas.lower():
+                a_orf = A_fuel_orf
 
+            else:
+                a_orf = A_ox_orf
+            
+            m_dot = mass_flow(k=k, R=R, MW=MW, rho=rho, A_orifice=a_orf,
+                              A_tube=A_tube, C_d=c_d, P_d=P_downstream,
+                              P_u=property_data[key][gas]['pressure'],
+                              T_avg=property_data[key][gas]['temp']+273)
+
+            property_data[key][gas].update({'rho': rho, 'k': k, 'MW': MW,
+                                            'a_orf': a_orf, 'm_dot': m_dot})
+            
+        property_data[key].update({'fuel_ox_ratio':
+                                    property_data[key][species[0]]['m_dot']/
+                                    property_data[key][species[1]]['m_dot']})
+        property_data[key].update({'equivalence_ratio':
+                                    property_data[key]['fuel_ox_ratio']/
+                                     Fuel_Oxidizer_Ratio(species[0],
+                                                         species[1])})
+        
+        
+    return property_data
+
+def add_in_velocity(test_data, velocity_data, predet_data):
+    for key, item in test_data.items():
+        test_data[key].update({'velocity': velocity_data[key]})
+        test_data[key].update({'predet_data': predet_data[key]})
+    return test_data
 
 if __name__ == '__main__':
-    filename = 'C:/Users/derek/Desktop/8_21_2018/test.tdms'
+    filename = 'D:PDE Project/Oxygen_Data/8_21_2018/test.tdms'
     velocity_data = [None]*19
 #    data = import_data(filename)
     
@@ -206,13 +244,38 @@ if __name__ == '__main__':
     except NameError:
         predet_data, pde_data, photo_data = group_channels(import_data(filename))
 
-    data = velocity_calculation(photo_data)
+    pde_data.rename(columns={x: x.lower().replace('upstream',
+                             'pde', 1).replace('o2', 'ox') for x in list(pde_data.columns)},
+                              inplace=True)
+    pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
+    velocity_data = velocity_calculation(photo_data)
 #    filter_example = butter_filter(photo_data[column_grouper(photo_data)[0][0]].values)
 #    plt.plot(filter_example)
 #    plt.plot(photo_data[column_grouper(photo_data)[0][0]].values)
-#    predet_press_temp = flow_temp_press(predet_data,
-#                                               '1731910192',
-#                                               '1731910208')
+    predet_press_temp = flow_temp_press(predet_data,
+                                        '1731910192',
+                                        '1731910208',
+                                        ox_species='N2O')
+
+    pde_press_temp = flow_temp_press(pde_data,
+                                     '7122122',
+                                     '1731910205',
+                                     ox_species='O2')
+    
+    orifice_diameters = {'predet_ox': 0.000812, 'predet_fuel': 0.000254,
+                         'pde_fuel': 0.0016, 'pde_ox': 0.00254}
+    
+    predet_property_data = flow_properties(predet_press_temp,
+                                           orifice_diameters['predet_fuel'],
+                                           orifice_diameters['predet_ox'])
+    
+    pde_property_data = flow_properties(pde_press_temp,
+                                        orifice_diameters['pde_fuel'],
+                                        orifice_diameters['pde_ox'])
+    
+    total_data = add_in_velocity(pde_property_data,
+                                 velocity_data,
+                                 predet_property_data)
     #del photo_data
     
     # TODO: The column grouper and group channels functions are pretty much redundant
