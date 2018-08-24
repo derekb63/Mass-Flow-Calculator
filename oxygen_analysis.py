@@ -11,7 +11,6 @@ from itertools import groupby
 from functions import mass_flow, A_orf, Calc_Props, Fuel_Oxidizer_Ratio
 import cantera as ct
 import scipy.signal as signal
-import matplotlib.pyplot as plt
 
 
 '''
@@ -166,6 +165,8 @@ def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
                         contains the average temperature and pressure for
                         the fuel and oxidizer for each test 
     '''
+    
+    # sort the columns to order the fuel and oxidizer
     flow_sorting = [sorted(x) for x in column_grouper(flow_data)]
     flow_sorting = [(x[0:2], x[2:]) for x in flow_sorting]
 
@@ -187,34 +188,78 @@ def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
 def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter,
                     tube_id=0.004572, c_d=0.99, P_downstream=101325,
                     R=ct.gas_constant / 1000 ):
+    
+    '''
+        Calcuate the important parameters for analysis of the equivalence ratio
+        and return them along with the equivalence ratio in a dictionary
+        
+        Inputs:
+            property_data: dictionary containing the average temperatures and
+                            pressures for each test. The dict must have the
+                            structure:
+                                -test_name/number
+                                    --fuel species
+                                        ---temperature
+                                        ---pressure
+                                    --oxidizer species
+                                        ---temperature
+                                        --- pressure
+           fuel_orifice_diameter: the diameter of the fuel orifice in (m)
+           ox_orifice_diameter: the diameter of the ox orifice in (m)
+           tube_id: the inner diameter fo the tube leading up to the orifice
+                    this is necessary for the non choked orifice case
+            c_d: discharge coefficient of the orifice(s) 
+            P_downstream: the pressure downstream of the orifice for the
+                           determination of the pressure ratio across the
+                           orifice in (Pa)
+            R: The universal gas constant with the units (kPa m^3/kmol-K)
+        
+        Outputs:
+            property_data: a dictionary that contains adds the following
+                           information to the property data dictionary:
+                               For each test:
+                                   -fuel to oxidizer ratio (fuel_ox_ratio)
+                                   -equivalence_ratio  for the test
+                               For each gas species: 
+                                   -upstream density (rho) (kg/m^3)
+                                   -Molecular weight
+                                   -orifice area (a_orf) (m^2)
+                                   -orifice mass flow rate (m_dot) (kg/s)
+    '''
     A_fuel_orf = A_orf(fuel_orifice_diameter)
     A_ox_orf = A_orf(ox_orifice_diameter)
     A_tube = A_orf(tube_id)
-#    rho, k, MW = Calc_Props(Gas, T, P)
     species = list(set((tuple(property_data[x].keys())\
               for x in property_data.keys())))[0]  
+    
+    # iterate through the tests (gets into the first level of the dict)
     for key, item in property_data.items():
+        #iterate through the gases in the tests (second level of the dict)
         for gas in species:
+            # get the gas properties
             rho, k, MW = Calc_Props(gas, item[gas]['temp']+273,
                                     item[gas]['pressure'])
-            
+            # determine if the species is a fuel to determine where to put it
             if 'h' in gas.lower():
                 a_orf = A_fuel_orf
 
             else:
                 a_orf = A_ox_orf
-            
+            # calculate the mass flow rate using the mass_flow function
+            # imported from the functions file
             m_dot = mass_flow(k=k, R=R, MW=MW, rho=rho, A_orifice=a_orf,
                               A_tube=A_tube, C_d=c_d, P_d=P_downstream,
                               P_u=property_data[key][gas]['pressure'],
                               T_avg=property_data[key][gas]['temp']+273)
-
+            # add the determined properties to the species level of the dict
+            # inside of each test
             property_data[key][gas].update({'rho': rho, 'k': k, 'MW': MW,
                                             'a_orf': a_orf, 'm_dot': m_dot})
-            
+        # add the fuel  ox ratio at the test level of the dict
         property_data[key].update({'fuel_ox_ratio':
                                     property_data[key][species[0]]['m_dot']/
                                     property_data[key][species[1]]['m_dot']})
+        # add the evquivalence ratio to the test level of the dict
         property_data[key].update({'equivalence_ratio':
                                     property_data[key]['fuel_ox_ratio']/
                                      Fuel_Oxidizer_Ratio(species[0],
@@ -224,10 +269,28 @@ def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter,
     return property_data
 
 def add_in_velocity(test_data, velocity_data, predet_data):
+    '''
+    Add the previously computed velocity values and predet data
+    to the pde data to have everything in the same place. The three
+    dictionaries must have the same keys for the tests
+        
+        Inputs: 
+            test_data: dict with keys for each test (generally would be the 
+                        output dict from the flow_properties function for 
+                        the pde data)
+            velcoity_data: dict containing the velocity data for each test
+            predet_data: dict with keys for each test (generally would be the 
+                        output dict from the flow_properties function)
+                
+        Output:
+            test_data: appended dict that contains the input data in a single
+                        dict
+    '''
     for key, item in test_data.items():
         test_data[key].update({'velocity': velocity_data[key]})
         test_data[key].update({'predet_data': predet_data[key]})
     return test_data
+
 
 if __name__ == '__main__':
     filename = 'D:PDE Project/Oxygen_Data/8_21_2018/test.tdms'
