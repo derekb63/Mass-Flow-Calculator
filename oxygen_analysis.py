@@ -293,7 +293,7 @@ def add_in_velocity(test_data, velocity_data, predet_data):
 
 
 if __name__ == '__main__':
-    filename = 'D:PDE Project/Oxygen_Data/8_21_2018/test.tdms'
+    filename = 'C:/Users/derek/Desktop/8_21_2018/test.tdms'
     velocity_data = [None]*19
 #    data = import_data(filename)
     
