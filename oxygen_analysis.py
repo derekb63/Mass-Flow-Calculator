@@ -11,6 +11,7 @@ from itertools import groupby
 from functions import mass_flow, A_orf, Calc_Props, Fuel_Oxidizer_Ratio
 import cantera as ct
 import scipy.signal as signal
+import pickle
 
 
 '''
@@ -293,7 +294,7 @@ def add_in_velocity(test_data, velocity_data, predet_data):
 
 
 if __name__ == '__main__':
-    filename = 'C:/Users/derek/Desktop/8_21_2018/test_002.tdms'
+    filename = 'C:/Users/derek/Desktop/8_28_2018/test.tdms'
     velocity_data = [None]*19
 #    data = import_data(filename)
     
@@ -339,6 +340,12 @@ if __name__ == '__main__':
     total_data = add_in_velocity(pde_property_data,
                                  velocity_data,
                                  predet_property_data)
+    
+    f = open("out.pkl", "wb")
+    pickle.dump(total_data, f)
+    f.close()
+    
+    
     #del photo_data
     
     # TODO: The column grouper and group channels functions are pretty much redundant
