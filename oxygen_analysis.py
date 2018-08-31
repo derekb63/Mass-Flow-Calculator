@@ -4,7 +4,7 @@ Created on Mon Jul 16 10:47:36 2018
 
 @author: derek
 """
-import re
+import re, os, glob
 import numpy as np
 from nptdms import TdmsFile
 from itertools import groupby
@@ -12,6 +12,10 @@ from functions import mass_flow, A_orf, Calc_Props, Fuel_Oxidizer_Ratio
 import cantera as ct
 import scipy.signal as signal
 import pickle
+from IPython import get_ipython
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
+
 
 
 '''
@@ -292,60 +296,124 @@ def add_in_velocity(test_data, velocity_data, predet_data):
         test_data[key].update({'predet_data': predet_data[key]})
     return test_data
 
+def get_filenames(filepath):
+    cur_dur = os.getcwd()
+    os.chdir(filepath)
+    files = glob.glob('*.tdms')
+    os.chdir(cur_dur)
+    return files
 
-if __name__ == '__main__':
-    filename = 'C:/Users/derek/Desktop/8_28_2018/test.tdms'
-    velocity_data = [None]*19
-#    data = import_data(filename)
-    
-#    for i in range(19):
-#        if i == 0:
-#            velocity_data[i] = data.loc[:, 'Test_  Voltage_0':'Test_  Voltage_2']
-#        else:    
-#            velocity_data[i] = data.loc[:, 'Test_{0}   Voltage_0'.format(i):'Test_{0}   Voltage_2'.format(i)]
+def save_output_dict(data_dict, filepath, filename):
+    try:
+        f = open(os.path.join(filepath, "OutputData{0}.pkl".format(filename.split('.')[0].capitalize())), "xb")
+        pickle.dump(total_data, f)
+        f.close()
+    except FileExistsError:
+        pass
+    return None
+
+def read_raw_data(filepath, filename):
     try:
         type(predet_data)
     except NameError:
-        predet_data, pde_data, photo_data = group_channels(import_data(filename))
+        predet_data, pde_data, photo_data = group_channels(import_data(os.path.join(filepath, filename)))
+        pde_data.rename(columns={x: x.lower().replace('upstream',
+                                                      'pde', 1).replace('o2',
+                                                      'ox') for x in list(pde_data.columns)},
+                                                     inplace=True)
+        pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
+        
+        return predet_data, pde_data, photo_data
 
-    pde_data.rename(columns={x: x.lower().replace('upstream',
-                             'pde', 1).replace('o2', 'ox') for x in list(pde_data.columns)},
-                              inplace=True)
-    pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
-    velocity_data = velocity_calculation(photo_data)
-#    filter_example = butter_filter(photo_data[column_grouper(photo_data)[0][0]].values)
-#    plt.plot(filter_example)
-#    plt.plot(photo_data[column_grouper(photo_data)[0][0]].values)
-    predet_press_temp = flow_temp_press(predet_data,
-                                        '1731910192',
-                                        '1731910208',
-                                        ox_species='N2O')
+def plot_photo_data(photo_data):
+    col_list = [x for x in list(photo_data.columns) if ('coil' not in x.lower()) and ('time' not in x.lower())]
+    tests = list(zip(col_list[::3], col_list[1::3], col_list[2::3]))
 
-    pde_press_temp = flow_temp_press(pde_data,
-                                     '7122122',
-                                     '1731910205',
-                                     ox_species='O2')
+
+    fig, ax = plt.subplots()
+    x_vals = photo_data.loc[:, tests[0]].index.values
+    y_vals = photo_data.loc[:, tests[0]].values
+    l = ax.plot(x_vals, y_vals)
+    #photo_data.loc[:, tests[0]].plot()
     
-    orifice_diameters = {'predet_ox': 0.000812, 'predet_fuel': 0.000254,
-                         'pde_fuel': 0.0016, 'pde_ox': 0.00254}
+    class Index(object):
+        def __init__(self):
+            self.idx = 0
+        def next(self, event):
+            self.idx += 1
+            y_data = photo_data.loc[:, tests[self.idx]].values
+            [x.set_ydata(y_data)[i] for i, x in enumerate(l)]
+         
+        def prev(self, event):
+            self.idx -= 1
+            y_data = photo_data.loc[:, tests[self.idx]].values
+            [x.set_ydata(y_data)[i] for i, x in enumerate(l)]
     
-    predet_property_data = flow_properties(predet_press_temp,
-                                           orifice_diameters['predet_fuel'],
-                                           orifice_diameters['predet_ox'])
+    callback = Index()
+    axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
+    axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
     
-    pde_property_data = flow_properties(pde_press_temp,
-                                        orifice_diameters['pde_fuel'],
-                                        orifice_diameters['pde_ox'])
+    bnext = Button(axnext, 'Next')
+    bnext.on_clicked(callback.next)
     
-    total_data = add_in_velocity(pde_property_data,
-                                 velocity_data,
-                                 predet_property_data)
+    bprev = Button(axprev, 'Previous')
+    bprev.on_clicked(callback.prev)
+    plt.show()
+
+
+if __name__ == '__main__':
+    filepath = 'C:/Users/derek/Desktop/8_28_2018/'
+    # filenames = get_filenames(filepath)
+    filenames = ['test001.tdms']
     
-    f = open("out.pkl", "wb")
-    pickle.dump(total_data, f)
-    f.close()
-    
-    
-    #del photo_data
-    
-    # TODO: The column grouper and group channels functions are pretty much redundant
+    try:
+        type(photo_data)
+    except NameError:
+        for filename in filenames:
+            try:
+                predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
+            
+                pde_data.rename(columns={x: x.lower().replace('upstream',
+                                                              'pde', 1).replace('o2',
+                                                              'ox') for x in list(pde_data.columns)},
+                                          inplace=True)
+                pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
+                velocity_data = velocity_calculation(photo_data)
+
+                predet_press_temp = flow_temp_press(predet_data,
+                                                    '1731910192',
+                                                    '1731910208',
+                                                    ox_species='N2O')
+            
+                pde_press_temp = flow_temp_press(pde_data,
+                                                 '7122122',
+                                                 '1731910205',
+                                                 ox_species='O2')
+                
+                orifice_diameters = {'predet_ox': 0.000812, 'predet_fuel': 0.000254,
+                                     'pde_fuel': 0.0016, 'pde_ox': 0.00254}
+                
+                predet_property_data = flow_properties(predet_press_temp,
+                                                       orifice_diameters['predet_fuel'],
+                                                       orifice_diameters['predet_ox'])
+                
+                pde_property_data = flow_properties(pde_press_temp,
+                                                    orifice_diameters['pde_fuel'],
+                                                    orifice_diameters['pde_ox'])
+                
+                total_data = add_in_velocity(pde_property_data,
+                                             velocity_data,
+                                             predet_property_data)
+                [print(x) for x in velocity_data]
+                
+                
+                save_output_dict(total_data, filepath, filename)
+                
+                
+                
+                # get_ipython().magic('reset -sf')
+                
+            except:
+                pass
+    plot_photo_data(photo_data)
+            # TODO: The column grouper and group channels functions are pretty much redundant
