@@ -326,37 +326,86 @@ def read_raw_data(filepath, filename):
         return predet_data, pde_data, photo_data
 
 def plot_photo_data(photo_data):
+    '''
+        Plot the photodiode data in a matplotlib figure that changes through
+        the test fires by button clicks. The current function is setup for 
+        tests that have 3 traces each and filters out the time and conductivity
+        data that is not needed for the plots. These could be wasily changed to
+        fit other data.
+        
+        Inputs:
+            photo_data: a pandas dataframe where the columns are the photodiode
+                        traces
+        Outputs: 
+            None
+    '''
+    # Generate the column list that only contains the photodiode data
     col_list = [x for x in list(photo_data.columns) if ('coil' not in x.lower()) and ('time' not in x.lower())]
+    # Separate the signals into a list of lists where each sublist contains
+    # the column names for the test at that index number
     tests = list(zip(col_list[::3], col_list[1::3], col_list[2::3]))
 
-
+    # Create the figure and plot the first data. The data is changed into a 
+    # numpy array for ease of use with the .values methods
     fig, ax = plt.subplots()
     x_vals = photo_data.loc[:, tests[0]].index.values
     y_vals = photo_data.loc[:, tests[0]].values
     l = ax.plot(x_vals, y_vals)
-    #photo_data.loc[:, tests[0]].plot()
+    title = ax.text(1, 1, 'Test 1')
+    
     
     class Index(object):
+        '''
+            Class that updates the y data in the plots based on the index. This 
+            class controls the plot updates and index counting
+        '''
         def __init__(self):
+        # initialize the index for the tests
             self.idx = 0
+            
         def next(self, event):
+        # Move forward unless the last index is reached then wrap back to zero
             self.idx += 1
-            y_data = photo_data.loc[:, tests[self.idx]].values
-            [x.set_ydata(y_data)[i] for i, x in enumerate(l)]
+            try: 
+                self.update_data()
+            except IndexError:
+                self.idx = 0
+                self.update_data()
          
         def prev(self, event):
+        # Move backwards until zero is reached then stay at zero
             self.idx -= 1
+            try:
+                self.update_data()
+            except IndexError:
+                self.idx = 0
+                self.update_data()
+        
+        def update_data(self):
+        # update the data and the title for the plots
+            # get the new data
             y_data = photo_data.loc[:, tests[self.idx]].values
-            [x.set_ydata(y_data)[i] for i, x in enumerate(l)]
+            # rename the title
+            title.set_text('Test {0}'.format(self.idx+1))
+            # set the data for each matplotlib line
+            for idx, val in enumerate(l):
+                val.set_ydata(y_data[:, idx])
     
+    # define the Index class as the callback object that is called when
+    # one of the buttons is pressed
     callback = Index()
+    # Set the locations of the buttons
     axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
     axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
     
+    # Setup the next button (location, text)
     bnext = Button(axnext, 'Next')
+    # Set the function that is called when the button is clicked
     bnext.on_clicked(callback.next)
     
+    # Setup the previos button (location, text)
     bprev = Button(axprev, 'Previous')
+    # Set the function that is called when the button is clicked
     bprev.on_clicked(callback.prev)
     plt.show()
 
@@ -368,6 +417,7 @@ if __name__ == '__main__':
     
     try:
         type(photo_data)
+        print('pass')
     except NameError:
         for filename in filenames:
             try:
