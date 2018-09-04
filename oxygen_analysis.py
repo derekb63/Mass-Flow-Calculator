@@ -352,6 +352,7 @@ def plot_photo_data(photo_data):
     y_vals = photo_data.loc[:, tests[0]].values
     l = ax.plot(x_vals, y_vals)
     title = ax.text(1, 1, 'Test 1')
+    ax.set_ylim(-2, 7)
     
     
     class Index(object):
@@ -413,57 +414,56 @@ def plot_photo_data(photo_data):
 if __name__ == '__main__':
     filepath = 'C:/Users/derek/Desktop/8_28_2018/'
     # filenames = get_filenames(filepath)
-    filenames = ['test001.tdms']
+    filenames = ['test020.tdms']
     
     try:
         type(photo_data)
         print('pass')
     except NameError:
         for filename in filenames:
-            try:
-                predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
-            
-                pde_data.rename(columns={x: x.lower().replace('upstream',
-                                                              'pde', 1).replace('o2',
-                                                              'ox') for x in list(pde_data.columns)},
-                                          inplace=True)
-                pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
-                velocity_data = velocity_calculation(photo_data)
+            predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
+        
+            pde_data.rename(columns={x: x.lower().replace('upstream',
+                                                          'pde', 1).replace('o2',
+                                                          'ox') for x in list(pde_data.columns)},
+                                      inplace=True)
+            pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
+            velocity_data = velocity_calculation(photo_data)
 
-                predet_press_temp = flow_temp_press(predet_data,
-                                                    '1731910192',
-                                                    '1731910208',
-                                                    ox_species='N2O')
+            predet_press_temp = flow_temp_press(predet_data,
+                                                '1731910192',
+                                                '1731910208',
+                                                ox_species='N2O')
+        
+            pde_press_temp = flow_temp_press(pde_data,
+                                             '7122122',
+                                             '1731910205',
+                                             ox_species='O2')
             
-                pde_press_temp = flow_temp_press(pde_data,
-                                                 '7122122',
-                                                 '1731910205',
-                                                 ox_species='O2')
-                
-                orifice_diameters = {'predet_ox': 0.000812, 'predet_fuel': 0.000254,
-                                     'pde_fuel': 0.0016, 'pde_ox': 0.00254}
-                
-                predet_property_data = flow_properties(predet_press_temp,
-                                                       orifice_diameters['predet_fuel'],
-                                                       orifice_diameters['predet_ox'])
-                
-                pde_property_data = flow_properties(pde_press_temp,
-                                                    orifice_diameters['pde_fuel'],
-                                                    orifice_diameters['pde_ox'])
-                
-                total_data = add_in_velocity(pde_property_data,
-                                             velocity_data,
-                                             predet_property_data)
-                [print(x) for x in velocity_data]
-                
-                
-                save_output_dict(total_data, filepath, filename)
-                
-                
-                
+            orifice_diameters = {'predet_ox': 0.000812, 'predet_fuel': 0.000254,
+                                 'pde_fuel': 0.0016, 'pde_ox': 0.00254}
+            
+            predet_property_data = flow_properties(predet_press_temp,
+                                                   orifice_diameters['predet_fuel'],
+                                                   orifice_diameters['predet_ox'])
+            
+            pde_property_data = flow_properties(pde_press_temp,
+                                                orifice_diameters['pde_fuel'],
+                                                orifice_diameters['pde_ox'])
+            
+            total_data = add_in_velocity(pde_property_data,
+                                         velocity_data,
+                                         predet_property_data)
+            [print(x) for x in velocity_data]
+            
+            
+            save_output_dict(total_data, filepath, filename)
+            
+            plot_photo_data(photo_data)
+            
+            
+            
                 # get_ipython().magic('reset -sf')
                 
-            except:
-                pass
-    plot_photo_data(photo_data)
+
             # TODO: The column grouper and group channels functions are pretty much redundant
