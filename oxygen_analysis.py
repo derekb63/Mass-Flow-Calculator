@@ -15,6 +15,7 @@ import pickle
 from IPython import get_ipython
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
+import json
 
 
 
@@ -151,9 +152,10 @@ def velocity_calculation(photodiode_data):
         return (spacing/(sample_frequency*difference_diff),
                spacing/(sample_frequency*difference_max))
     # map the test data to the v_calc function to get the velocities
-    return list(map(v_calc,
+    v_data = list(map(v_calc,
                     [photodiode_data.loc[:, x].apply(butter_filter, axis=0) for
                      x in column_grouper(photodiode_data.columns)]))
+    return [[k.tolist() for k in j] for j in v_data]
                  
 
 def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
@@ -304,12 +306,10 @@ def get_filenames(filepath):
     return files
 
 def save_output_dict(data_dict, filepath, filename):
-    try:
-        f = open(os.path.join(filepath, "OutputData{0}.pkl".format(filename.split('.')[0].capitalize())), "xb")
-        pickle.dump(total_data, f)
-        f.close()
-    except FileExistsError:
-        pass
+    with open(os.path.join(filepath, "OutputData{0}.json".\
+                                     format(filename.split('.')[0].\
+                                     capitalize())), "w") as f:
+        json.dump(total_data, f, indent=1)
     return None
 
 def read_raw_data(filepath, filename):
@@ -412,17 +412,14 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:/Users/derek/Desktop/8_28_2018/'
-    # filenames = get_filenames(filepath)
-    filenames = ['test020.tdms']
+    filepath = 'C:/Users/derek/Desktop/8_15_2018/'
+    filenames = get_filenames(filepath)
+    # filenames = ['test020.tdms']
     
-    try:
-        type(photo_data)
-        print('pass')
-    except NameError:
-        for filename in filenames:
+    for filename in filenames:
+        try:
             predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
-        
+
             pde_data.rename(columns={x: x.lower().replace('upstream',
                                                           'pde', 1).replace('o2',
                                                           'ox') for x in list(pde_data.columns)},
@@ -459,11 +456,13 @@ if __name__ == '__main__':
             
             save_output_dict(total_data, filepath, filename)
             
-            plot_photo_data(photo_data)
+            # plot_photo_data(photo_data)
+        except Exception:
+            print('Exception occured')
+            pass
+        
+        
+            # get_ipython().magic('reset -sf')
             
-            
-            
-                # get_ipython().magic('reset -sf')
-                
 
-            # TODO: The column grouper and group channels functions are pretty much redundant
+        # TODO: The column grouper and group channels functions are pretty much redundant
