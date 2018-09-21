@@ -15,7 +15,7 @@ from functions import Fuel_Oxidizer_Ratio
 '''
 This code is the main fuction for the massflowcalculator that brings all of the 
 functions together. To run the code call the mass_flow_calc function with the 
-required inputs.
+required inputs. Only change things in the if __name__ == '__main__' block
 
 Inputs:
     fuel: a string readable by cantera that denotes the fuel species
@@ -157,18 +157,15 @@ def mass_flow_calc(fuel='C3H8', oxidizer='N2O', diluent=None,
     return Data
 
 if __name__ == '__main__':
-
+	# This is where all of the inputs go to do the analysis
     filepath = 'D:\PDE Project\Dilution Project\Dilution Experiment Tests\Phase 1\February 7\eighth_in_orifice\Itrogen\psi0'
     Data = mass_flow_calc(diluent='N2',
                           Tname=filepath + '\TC.tdms',
                           Pname=filepath + '\PT.tdms',
                           PDname=filepath + '\PD.tdms',
-                          save=False)
-#    Data = mass_flow_calc(diluent='N2', save=False, method='max')
-#    Data = mass_flow_calc(diluent='CO2', save=True, method='diff')
+                          save=False,
+						  method='diff')
 
     # Plots this data so we can see what kind of curve we are getting
-    # print(Data)
-
     Data.plot(x='Phi', y=['V1'], marker='x', linestyle='None',
               ylim=(500, 3500), xlim=[0.95, 1.05])
