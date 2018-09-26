@@ -412,7 +412,7 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:/Users/derek/Desktop/8_15_2018/'
+    filepath = 'C:/Users/derek/Desktop/9_24_2018/'
     filenames = get_filenames(filepath)
     # filenames = ['test020.tdms']
     

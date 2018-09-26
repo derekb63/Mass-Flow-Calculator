@@ -15,6 +15,8 @@ import itertools
 def loadPkl(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         return json.load(file)
+    
+
 
 if __name__ == "__main__":
     directory = ['C:\\Users\\derek\\Desktop\\8_21_2018\\',
@@ -35,8 +37,13 @@ if __name__ == "__main__":
             else: 
                 pass
     
+    font_size = 26
     fig, ax = plt.subplots()
-    ax.plot(phis, vels, 'ob')
-    ax.set(ylabel='Velocity (m/s)', xlabel='$\Phi$')
+    ax.plot(phis, vels, 'xk')
+    ax.plot()
+    ax.set
+    ax.set_ylabel('Velocity (m/s)', fontsize=font_size)
+    ax.set_xlabel('$\Phi$', fontsize=font_size)
+    ax.tick_params(labelsize=font_size-3)
     fig.show()
             
