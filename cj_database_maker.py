@@ -44,9 +44,9 @@ if __name__ == '__main__':
     
         species_mole_fractions = parse_mole_fractions(gas)
     
-        cj_speed = sd2.detonations.calculate_cj_speed(initial_pressure,
-                                                      initial_temperature,
-                                                      species_mole_fractions,
-                                                      mechanism)
+        cj_speed[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
+                                                           initial_temperature,
+                                                           species_mole_fractions,
+                                                           mechanism)
         print(cj_speed)
         cj_speeds[phi] = cj_speed

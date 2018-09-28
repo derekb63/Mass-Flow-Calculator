@@ -11,10 +11,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import itertools
+import sd2
+import cantera as ct
+
 
 def loadPkl(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         return json.load(file)
+		
+def parse_mole_fractions(gas_object):
+    mole_fraction_dict = gas.mole_fraction_dict()
+    mole_fraction_string_list = ['%s:%s'%(key, mole_fraction_dict[key])
+                                                 for key in mole_fraction_dict]
+    return (',').join(mole_fraction_string_list)
+
+def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
+                      fuel='CH4', oxidizer='O2'):
+    gas = ct.Solution(mechanism)
+    gas.TP = temperature, pressure
+    gas.set_equivalence_ratio(equivalence_ratio, fuel, oxidizer)
+    return gas
+    
     
 
 
@@ -37,9 +54,34 @@ if __name__ == "__main__":
             else: 
                 pass
     
+	
+    initial_pressure = ct.one_atm
+    
+    initial_temperature = 298
+    
+    mechanism = 'gri30.cti'
+    
+    equivalence_ratio = np.linspace(min(phis), max(phis), 15)
+    
+    cj_speeds = dict()
+    
+    for phi in equivalence_ratio:
+        gas = create_gas_object(mechanism, initial_temperature, initial_pressure,
+                                phi)
+    
+        species_mole_fractions = parse_mole_fractions(gas)
+    
+        cj_speed[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
+                                                           initial_temperature,
+                                                           species_mole_fractions,
+                                                           mechanism)
+        print(cj_speed)
+        cj_speeds[phi] = cj_speed
+	
     font_size = 26
     fig, ax = plt.subplots()
     ax.plot(phis, vels, 'xk')
+    ax.plot(*zip(*sorted(cj_speed.items())), 'ob')
     ax.plot()
     ax.set
     ax.set_ylabel('Velocity (m/s)', fontsize=font_size)
