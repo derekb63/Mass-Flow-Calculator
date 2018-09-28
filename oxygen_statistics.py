@@ -71,17 +71,15 @@ if __name__ == "__main__":
     
         species_mole_fractions = parse_mole_fractions(gas)
     
-        cj_speed[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
+        cj_speeds[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
                                                            initial_temperature,
                                                            species_mole_fractions,
                                                            mechanism)
-        print(cj_speed)
-        cj_speeds[phi] = cj_speed
 	
     font_size = 26
     fig, ax = plt.subplots()
     ax.plot(phis, vels, 'xk')
-    ax.plot(*zip(*sorted(cj_speed.items())), 'ob')
+    ax.plot(*zip(*sorted(cj_speeds.items())), 'ob')
     ax.plot()
     ax.set
     ax.set_ylabel('Velocity (m/s)', fontsize=font_size)
