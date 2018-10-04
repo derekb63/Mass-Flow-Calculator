@@ -16,7 +16,7 @@ from IPython import get_ipython
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import json
-
+import itertools as it
 
 
 '''
@@ -301,14 +301,15 @@ def add_in_velocity(test_data, velocity_data, predet_data):
 def get_filenames(filepath):
     cur_dur = os.getcwd()
     os.chdir(filepath)
-    files = glob.glob('*.tdms')
+    files = glob.glob('**/*.tdms', recursive=True)
     os.chdir(cur_dur)
     return files
 
 def save_output_dict(data_dict, filepath, filename):
-    with open(os.path.join(filepath, "OutputData{0}.json".\
-                                     format(filename.split('.')[0].\
-                                     capitalize())), "w") as f:
+    file_info = list(it.chain(*[x.split('.') for x in filename.split('\\')]))
+    file_location = os.path.join(filepath, file_info[0],
+                                 "OutputData%s.json" % (file_info[1]))
+    with open(os.path.join(file_location), "w+") as f:
         json.dump(total_data, f, indent=1)
     return None
 
@@ -412,7 +413,7 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:/Users/derek/Desktop/9_24_2018/'
+    filepath = 'C:\\Users\\derek\\Desktop\\'
     filenames = get_filenames(filepath)
     # filenames = ['test020.tdms']
     

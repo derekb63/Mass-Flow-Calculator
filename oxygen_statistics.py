@@ -37,7 +37,7 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 if __name__ == "__main__":
     directory = ['C:\\Users\\derek\\Desktop\\8_21_2018\\',
-                 'C:\\Users\\derek\\Desktop\\8_28_2018\\',
+                 'C:\\Users\\derek\\Desktop\\8_15_2018\\',
                  'C:\\Users\\derek\\Desktop\\8_28_2018\\']
     files = itertools.chain(*[glob.glob(x + '*.json') for x in directory])
     
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     
     mechanism = 'gri30.cti'
     
-    equivalence_ratio = np.linspace(min(phis), max(phis), 15)
+    equivalence_ratio = np.linspace(min(phis), max(phis)*2, 15)
     
     cj_speeds = dict()
     
@@ -78,12 +78,14 @@ if __name__ == "__main__":
 	
     font_size = 26
     fig, ax = plt.subplots()
-    ax.plot(phis, vels, 'xk')
-    ax.plot(*zip(*sorted(cj_speeds.items())), 'ob')
+    ax.fill_between(equivalence_ratio, cj_speeds.values(),
+                    [0.85*x for x in cj_speeds.values()], label='Caclulated')
+    ax.plot(phis, vels, 'xk', label='Experimental')
+    #ax.plot(*zip(*sorted(cj_speeds.items())), 'ob', label='Caclulated')
     ax.plot()
-    ax.set
     ax.set_ylabel('Velocity (m/s)', fontsize=font_size)
     ax.set_xlabel('$\Phi$', fontsize=font_size)
     ax.tick_params(labelsize=font_size-3)
+    ax.legend()
     fig.show()
             
