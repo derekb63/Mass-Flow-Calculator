@@ -36,9 +36,7 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 
 if __name__ == "__main__":
-    directory = ['C:\\Users\\derek\\Desktop\\8_21_2018\\',
-                 'C:\\Users\\derek\\Desktop\\8_15_2018\\',
-                 'C:\\Users\\derek\\Desktop\\8_28_2018\\']
+    directory = ['C:\\Users\\derek\\Desktop\\10_18_2018\\']
     files = itertools.chain(*[glob.glob(x + '*.json') for x in directory])
     
     

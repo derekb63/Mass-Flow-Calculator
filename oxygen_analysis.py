@@ -307,8 +307,8 @@ def get_filenames(filepath):
 
 def save_output_dict(data_dict, filepath, filename):
     file_info = list(it.chain(*[x.split('.') for x in filename.split('\\')]))
-    file_location = os.path.join(filepath, file_info[0],
-                                 "OutputData%s.json" % (file_info[1]))
+    file_location = os.path.join(filepath,
+                                 "OutputData_%s.json" % (file_info[0]))
     with open(os.path.join(file_location), "w+") as f:
         json.dump(total_data, f, indent=1)
     return None
@@ -413,7 +413,7 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:\\Users\\derek\\Desktop\\'
+    filepath = 'C:\\Users\\derek\\Desktop\\10_18_2018\\'
     filenames = get_filenames(filepath)
     # filenames = ['test020.tdms']
     
@@ -452,7 +452,7 @@ if __name__ == '__main__':
             total_data = add_in_velocity(pde_property_data,
                                          velocity_data,
                                          predet_property_data)
-            [print(x) for x in velocity_data]
+ #           [print(x) for x in velocity_data]
             
             
             save_output_dict(total_data, filepath, filename)
