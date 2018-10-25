@@ -9,10 +9,10 @@ import json
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import itertools
 import sd2
 import cantera as ct
+import scipy
 
 
 def loadPkl(filename):
@@ -36,8 +36,8 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 
 if __name__ == "__main__":
-    directory = ['C:\\Users\\derek\\Desktop\\10_18_2018\\']
-    files = itertools.chain(*[glob.glob(x + '*.json') for x in directory])
+    directory = ['E:\\PDE Project\\Oxygen_Data\\']
+    files = itertools.chain(*[glob.glob(x + '**/*.json') for x in directory])
     
     
     data = list(map(loadPkl, files))
@@ -57,33 +57,46 @@ if __name__ == "__main__":
     
     initial_temperature = 298
     
-    mechanism = 'gri30.cti'
+    mechanism = 'gri30_highT.cti'
     
-    equivalence_ratio = np.linspace(min(phis), max(phis)*2, 15)
+    equivalence_ratio = np.linspace(min(phis), max(phis), 20)
     
     cj_speeds = dict()
     
     for phi in equivalence_ratio:
-        gas = create_gas_object(mechanism, initial_temperature, initial_pressure,
-                                phi)
+        try:
+            gas = create_gas_object(mechanism, initial_temperature, initial_pressure,
+                                    phi)
     
-        species_mole_fractions = parse_mole_fractions(gas)
+            species_mole_fractions = parse_mole_fractions(gas)
+        
+            cj_speeds_temp = sd2.detonations.calculate_cj_speed(initial_pressure,
+                                                               initial_temperature,
+                                                               species_mole_fractions,
+                                                               mechanism)
+            cj_speeds[phi] = list(cj_speeds_temp.values())[0]
+        except ct.CanteraError:
+            print('There was a CanteraError')
+        except ZeroDivisionError:
+            print('There was a zero division error')
+            
+#    fit_func = lambda x, a, b, c: a * x ** b + c
+#    
+#    fit_vals, fit_stats = scipy.optimize.curve_fit(fit_func, phis, vels)
     
-        cj_speeds[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
-                                                           initial_temperature,
-                                                           species_mole_fractions,
-                                                           mechanism)
-	
     font_size = 26
+    marker_size = 14
     fig, ax = plt.subplots()
-    ax.fill_between(equivalence_ratio, cj_speeds.values(),
-                    [0.85*x for x in cj_speeds.values()], label='Caclulated')
-    ax.plot(phis, vels, 'xk', label='Experimental')
-    #ax.plot(*zip(*sorted(cj_speeds.items())), 'ob', label='Caclulated')
-    ax.plot()
-    ax.set_ylabel('Velocity (m/s)', fontsize=font_size)
-    ax.set_xlabel('$\Phi$', fontsize=font_size)
+#    ax.fill_between(cj_speeds.keys(), cj_speeds.values(),
+#                    [0.85*x for x in list(cj_speeds.values())], label='Caclulated')
+    ax.plot(phis, vels, '.', label='Experimental', markersize=marker_size,
+            markerfacecolor='none')
+    ax.plot(*zip(*sorted(cj_speeds.items())), '--', label='Caclulated CJ',
+            markersize=marker_size)
+#    ax.plot(phis, [fit_func(*([x] + fit_vals.tolist())) for x in phis], 'o')
+    ax.set_ylabel('Detonation Velocity (m/s)', fontsize=font_size)
+    ax.set_xlabel('Equivalence Ratio ($\Phi$)', fontsize=font_size)
     ax.tick_params(labelsize=font_size-3)
-    ax.legend()
+    ax.legend(fontsize=font_size-6)
     fig.show()
             

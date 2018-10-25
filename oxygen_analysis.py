@@ -306,9 +306,18 @@ def get_filenames(filepath):
     return files
 
 def save_output_dict(data_dict, filepath, filename):
+    '''
+    Save the diction that contains the data from the tests in a .json file.
+    	
+    	Inputs:
+    		data_dict: A dictonary containing data to be saved
+    		filepath: The directory where the file is to be saved
+    		filename: The desired name of the file. This name will be prepended with the string "OutputData_"
+    					The file extension will be removed from the file if it has one
+    '''
     file_info = list(it.chain(*[x.split('.') for x in filename.split('\\')]))
-    file_location = os.path.join(filepath,
-                                 "OutputData_%s.json" % (file_info[0]))
+    file_location = os.path.join(filepath, file_info[0],
+                                 "OutputData_%s.json" % (file_info[1]))
     with open(os.path.join(file_location), "w+") as f:
         json.dump(total_data, f, indent=1)
     return None
@@ -413,8 +422,9 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:\\Users\\derek\\Desktop\\10_18_2018\\'
+    filepath = 'E:\\PDE Project\\Oxygen_Data\\'
     filenames = get_filenames(filepath)
+    print(filenames)
     # filenames = ['test020.tdms']
     
     for filename in filenames:
@@ -452,18 +462,11 @@ if __name__ == '__main__':
             total_data = add_in_velocity(pde_property_data,
                                          velocity_data,
                                          predet_property_data)
- #           [print(x) for x in velocity_data]
             
             
             save_output_dict(total_data, filepath, filename)
             
-            # plot_photo_data(photo_data)
         except Exception:
             print('Exception occured')
             pass
-        
-        
-            # get_ipython().magic('reset -sf')
-            
-
         # TODO: The column grouper and group channels functions are pretty much redundant
