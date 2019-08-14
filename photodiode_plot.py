@@ -12,7 +12,7 @@ import sys
 import matplotlib.pyplot as plt 
 import numpy as np
 from functions import FindFile
-
+from scipy import signal as s
 
 # Read in the photodiode data and plot the point that is used for the
 # measurement method defined in the function call
@@ -48,6 +48,12 @@ def signal_plot(PDname=None, method='diff'):
 #    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
     return new_data
 
+def signal_plot_test(PDname=None, method='diff'):
+    if PDname is None:
+        PDname = FindFile('Photodiode')
+    
+        
+
 
 def test_enter(num_tests):
     plot_num = input('Which test to plot out of {0}: '.format(num_tests))
@@ -61,8 +67,50 @@ def test_enter(num_tests):
         return int(plot_num)
 
 
+def fft_plotter(data, Fs=1e6):
+    Ts = 1.0/Fs
+    t = np.arange(0, 1, Ts)
+    n = len(data)
+    T = n/Fs
+    k =np.arange(n)
+    frq = k/T # two sides frequency range
+    frq = frq[range(int(n/2))] # one side frequency range
+    
+    Y = np.fft.fft(data)/n # fft computing and normalization
+    Y = Y[range(int(n/2))]
+    
+    fig, ax = plt.subplots(2, 1)
+    ax[0].plot(t,data)
+    ax[0].set_xlabel('Time')
+    ax[0].set_ylabel('Amplitude')
+    ax[1].plot(frq ,abs(Y),'r') # plotting the spectrum
+    ax[1].set_xlabel('Freq (Hz)')
+    ax[1].set_ylabel('|Y(freq)|')
+    plt.show()
+
 if __name__ == '__main__':
 
     # PDname = FindFile('Photodiode')
     # [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
-    data = signal_plot(method='diff')
+#    data = signal_plot(method='diff')
+    PDname = 'D:\\Oxygen_Data\\08_06_2019\\test006C_08062019.tdms'
+    data_file = TdmsFile(PDname)
+    test_names = data_file.groups()
+    pd_data = []
+#    desired_names = ['photo', 'coil']
+    desired_names = ['untitled']
+    for test in test_names:
+        channels = data_file.group_channels(test)
+        ch_idx = [idx for idx, val in enumerate(channels) if
+                  (any(ele in val.path.lower() for ele in desired_names) and
+                  'time' not in val.path.lower())]
+
+        pd_data.append([data_file.group_channels(test)[x] for x in ch_idx])
+#    fft_plotter(pd_data[0][0].data)
+#    fft_plotter(pd_data[0][1].data)
+    plt.plot([x.data for x in pd_data[0]])
+        
+#    idx = 0; plt.plot(pd_data[idx][:].data)
+#    test_groups = data_file.groups()
+#    data = data_file.data.group_channels(test_groups[0])
+#    data_dict = {dataset.channel: dataset for dataset in data}

@@ -13,6 +13,7 @@ import itertools
 import sd2
 import cantera as ct
 import scipy
+from pathlib import Path, PurePath
 
 
 def loadPkl(filename):
@@ -36,9 +37,13 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 
 if __name__ == "__main__":
-    directory = ['E:\\PDE Project\\Oxygen_Data\\']
-    files = itertools.chain(*[glob.glob(x + '**/*.json') for x in directory])
+    directory = ['E:\\Oxygen_05_29_2019\\']
+    files = []
     
+    for folder in directory:
+        files.append(Path(folder).glob('**/*.json'))
+        
+    files = [str(x) for f in files for x in f]
     
     data = list(map(loadPkl, files))
     phis = []
@@ -74,7 +79,7 @@ if __name__ == "__main__":
                                                                initial_temperature,
                                                                species_mole_fractions,
                                                                mechanism)
-            cj_speeds[phi] = list(cj_speeds_temp.values())[0]
+            cj_speeds[phi] = cj_speeds_temp
         except ct.CanteraError:
             print('There was a CanteraError')
         except ZeroDivisionError:

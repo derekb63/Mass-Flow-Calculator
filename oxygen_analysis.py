@@ -27,7 +27,8 @@ three separate files. Thsi process started with the data collected 7_11_2018.
 
 R = ct.gas_constant / 1000  # Gas constant (kPa m^3/kmol-K)
 
-def import_data(filepath):
+
+def import_data(data_filepath):
     """
     Import the data saved in the tdms file into a dataframe for processing
     
@@ -38,7 +39,7 @@ def import_data(filepath):
         data: The data from the tdms file organized in a Pandas dataframe
     """
     
-    data_file = TdmsFile(filepath)
+    data_file = TdmsFile(data_filepath)
     
     test_data = data_file.as_dataframe()
     
@@ -49,6 +50,7 @@ def import_data(filepath):
         new_columns[names]  = new_name
 
     return test_data.rename(columns=new_columns)
+
 
 def group_channels(data):
     def grouper(data):
@@ -318,8 +320,13 @@ def save_output_dict(data_dict, filepath, filename):
     file_info = list(it.chain(*[x.split('.') for x in filename.split('\\')]))
     file_location = os.path.join(filepath, file_info[0],
                                  "OutputData_%s.json" % (file_info[1]))
-    with open(os.path.join(file_location), "w+") as f:
-        json.dump(total_data, f, indent=1)
+    try:
+        with open(os.path.join(file_location), "w+") as f:
+            json.dump(total_data, f, indent=1)
+    except FileNotFoundError:
+        os.mkdir(os.path.join(filepath, file_info[0]))
+        with open(os.path.join(file_location), "w+") as f:
+            json.dump(total_data, f, indent=1)
     return None
 
 def read_raw_data(filepath, filename):
@@ -422,11 +429,11 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'E:\\PDE Project\\Oxygen_Data\\'
+    filepath = 'C:\\Users\\derek\\Desktop\\OxyPDE_08132019'
     filenames = get_filenames(filepath)
     print(filenames)
     # filenames = ['test020.tdms']
-    
+    # filenames = ['test001_08132019.tdms']
     for filename in filenames:
         try:
             predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
@@ -466,7 +473,7 @@ if __name__ == '__main__':
             
             save_output_dict(total_data, filepath, filename)
             
-        except Exception:
+        except NameError:
             print('Exception occured')
             pass
         # TODO: The column grouper and group channels functions are pretty much redundant
