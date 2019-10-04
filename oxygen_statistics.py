@@ -37,7 +37,7 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 
 if __name__ == "__main__":
-    directory = ['E:\\Oxygen_05_29_2019\\']
+    directory = ['C:\\Users\\derek\\Desktop\\OxyPDE_10032019\\']
     files = []
     
     for folder in directory:
@@ -50,7 +50,10 @@ if __name__ == "__main__":
     vels = []
     for group in data:
         for key, item in group.items():
-            vel = np.mean(item['velocity'][0])
+            try:
+                vel = np.mean(item['velocity'][0])
+            except KeyError:
+                vel = 0
             if vel > 100 and  vel < 3000:
                 phis.append(item['equivalence_ratio'])
                 vels.append(vel)
@@ -96,7 +99,8 @@ if __name__ == "__main__":
 #                    [0.85*x for x in list(cj_speeds.values())], label='Caclulated')
     ax.plot(phis, vels, '.', label='Experimental', markersize=marker_size,
             markerfacecolor='none')
-    ax.plot(*zip(*sorted(cj_speeds.items())), '--', label='Caclulated CJ',
+    ax.plot(sorted([x[0] for x in cj_speeds.items()]),
+            sorted([x[1]['cj speed']for x in cj_speeds.items()]), '--', label='Caclulated CJ',
             markersize=marker_size)
 #    ax.plot(phis, [fit_func(*([x] + fit_vals.tolist())) for x in phis], 'o')
     ax.set_ylabel('Detonation Velocity (m/s)', fontsize=font_size)

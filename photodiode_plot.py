@@ -48,12 +48,11 @@ def signal_plot(PDname=None, method='diff'):
 #    PDdata.plot(y=list(PDdata.columns[plot_num*4:(plot_num*4)+4]))
     return new_data
 
+
 def signal_plot_test(PDname=None, method='diff'):
     if PDname is None:
         PDname = FindFile('Photodiode')
     
-        
-
 
 def test_enter(num_tests):
     plot_num = input('Which test to plot out of {0}: '.format(num_tests))
@@ -88,12 +87,14 @@ def fft_plotter(data, Fs=1e6):
     ax[1].set_ylabel('|Y(freq)|')
     plt.show()
 
+
 if __name__ == '__main__':
 
     # PDname = FindFile('Photodiode')
     # [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
 #    data = signal_plot(method='diff')
-    PDname = 'D:\\Oxygen_Data\\08_06_2019\\test006C_08062019.tdms'
+#     PDname = 'F:\\Oxygen_Data\\09_03_2019\\test021C_09032019.tdms'
+    PDname = 'F:\\Oxygen_Data\\cal002.tdms'
     data_file = TdmsFile(PDname)
     test_names = data_file.groups()
     pd_data = []
@@ -108,7 +109,7 @@ if __name__ == '__main__':
         pd_data.append([data_file.group_channels(test)[x] for x in ch_idx])
 #    fft_plotter(pd_data[0][0].data)
 #    fft_plotter(pd_data[0][1].data)
-    plt.plot([x.data for x in pd_data[0]])
+#    plt.plot([x.data for x in pd_data[0]])
         
 #    idx = 0; plt.plot(pd_data[idx][:].data)
 #    test_groups = data_file.groups()

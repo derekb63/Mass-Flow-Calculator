@@ -37,16 +37,16 @@ if __name__ == '__main__':
     equivalence_ratio = np.linspace(0.1, 2.0, 10)
     
     cj_speeds = dict()
+    gas_states = dict()
     
     for phi in equivalence_ratio:
         gas = create_gas_object(mechanism, initial_temperature, initial_pressure,
                                 phi)
     
         species_mole_fractions = parse_mole_fractions(gas)
+
     
-        cj_speed[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
+        cj_speeds[phi], gas_states[phi] = sd2.detonations.calculate_cj_speed(initial_pressure,
                                                            initial_temperature,
                                                            species_mole_fractions,
-                                                           mechanism)
-        print(cj_speed)
-        cj_speeds[phi] = cj_speed
+                                                           mechanism, return_state=True)

@@ -11,8 +11,6 @@ from itertools import groupby
 from functions import mass_flow, A_orf, Calc_Props, Fuel_Oxidizer_Ratio
 import cantera as ct
 import scipy.signal as signal
-import pickle
-from IPython import get_ipython
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import json
@@ -115,7 +113,6 @@ def column_grouper(column_list):
 def butter_filter(data, n=3, wn=0.01):
     b, a = signal.butter(n, wn, output='ba', btype='lowpass')
     return signal.filtfilt(b, a, data)
-    
 
 
 def velocity_calculation(photodiode_data):
@@ -158,6 +155,10 @@ def velocity_calculation(photodiode_data):
                     [photodiode_data.loc[:, x].apply(butter_filter, axis=0) for
                      x in column_grouper(photodiode_data.columns)]))
     return [[k.tolist() for k in j] for j in v_data]
+
+
+def conductivity_calculation(conductivity_data):
+    return None
                  
 
 def flow_temp_press(flow_data, ox_ducer_serial, fuel_ducer_serial,
@@ -277,6 +278,7 @@ def flow_properties(property_data, fuel_orifice_diameter, ox_orifice_diameter,
         
     return property_data
 
+
 def add_in_velocity(test_data, velocity_data, predet_data):
     '''
     Add the previously computed velocity values and predet data
@@ -296,9 +298,13 @@ def add_in_velocity(test_data, velocity_data, predet_data):
                         dict
     '''
     for key, item in test_data.items():
-        test_data[key].update({'velocity': velocity_data[key]})
-        test_data[key].update({'predet_data': predet_data[key]})
+        try:
+            test_data[key].update({'velocity': velocity_data[key]})
+            test_data[key].update({'predet_data': predet_data[key]})
+        except IndexError:
+            pass
     return test_data
+
 
 def get_filenames(filepath):
     cur_dur = os.getcwd()
@@ -306,6 +312,7 @@ def get_filenames(filepath):
     files = glob.glob('**/*.tdms', recursive=True)
     os.chdir(cur_dur)
     return files
+
 
 def save_output_dict(data_dict, filepath, filename):
     '''
@@ -329,18 +336,19 @@ def save_output_dict(data_dict, filepath, filename):
             json.dump(total_data, f, indent=1)
     return None
 
-def read_raw_data(filepath, filename):
-    try:
-        type(predet_data)
-    except NameError:
-        predet_data, pde_data, photo_data = group_channels(import_data(os.path.join(filepath, filename)))
-        pde_data.rename(columns={x: x.lower().replace('upstream',
-                                                      'pde', 1).replace('o2',
-                                                      'ox') for x in list(pde_data.columns)},
-                                                     inplace=True)
-        pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
-        
-        return predet_data, pde_data, photo_data
+
+def read_raw_data(file_path, file_name):
+    print(filename)
+    # try:
+    #     predet_data
+    # except NameError:
+    predetonator_data, pde_data, photodiode_data = group_channels(import_data(os.path.join(file_path, file_name)))
+    pde_data.rename(columns={x: x.lower().replace('upstream', 'pde', 1).replace('o2', 'ox') for x in list(pde_data.columns)}, inplace=True)
+
+    pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
+
+    return predetonator_data, pde_data, photodiode_data
+
 
 def plot_photo_data(photo_data):
     '''
@@ -429,20 +437,16 @@ def plot_photo_data(photo_data):
 
 
 if __name__ == '__main__':
-    filepath = 'C:\\Users\\derek\\Desktop\\OxyPDE_08132019'
+    filepath = 'C:\\Users\\derek\\Desktop\\OxyPDE_10032019\\'
+
     filenames = get_filenames(filepath)
     print(filenames)
-    # filenames = ['test020.tdms']
-    # filenames = ['test001_08132019.tdms']
+    # filenames = ['test006C_08132019_1_2_3_4_5.tdms']
+    # filenames = ['test_file.tdms']
     for filename in filenames:
         try:
             predet_data, pde_data, photo_data = read_raw_data(filepath, filename)
 
-            pde_data.rename(columns={x: x.lower().replace('upstream',
-                                                          'pde', 1).replace('o2',
-                                                          'ox') for x in list(pde_data.columns)},
-                                      inplace=True)
-            pde_data.drop([x for x in pde_data.columns if 'down' in x.lower()], axis=1, inplace=True)
             velocity_data = velocity_calculation(photo_data)
 
             predet_press_temp = flow_temp_press(predet_data,
