@@ -145,7 +145,7 @@ if __name__ == '__main__':
     trim_limits=(1200, 2100)
     # Create the bins to sort the dilution species into
     bins = np.linspace(0, 0.5, 50)
-    file_name = 'C:/Users/beande.ONID/Dropbox/PDE Codes/Compiled test data.csv'
+    file_name = 'C:\\Users\\derek\\Dropbox\\PDE Codes\\Compiled test data.csv'
     # Get the raw data from the csv_file
     base_data, CO2_data, N2_data = read_csv(file_name, axis_limits=False,
                                             trim=True,

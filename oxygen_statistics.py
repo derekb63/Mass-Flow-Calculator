@@ -37,7 +37,9 @@ def create_gas_object(mechanism, temperature, pressure, equivalence_ratio,
 
 
 if __name__ == "__main__":
-    directory = ['C:\\Users\\derek\\Desktop\\OxyPDE_10032019\\']
+    # directory = ['C:\\Users\\derek\\Desktop\\Oxygen_05_29_2019',
+    #              'C:\\Users\\derek\\Desktop\\OxyPDE06272019']
+    directory = ['C:\\Users\\derek\\Desktop\\q3_data']
     files = []
     
     for folder in directory:
@@ -75,9 +77,9 @@ if __name__ == "__main__":
         try:
             gas = create_gas_object(mechanism, initial_temperature, initial_pressure,
                                     phi)
-    
+
             species_mole_fractions = parse_mole_fractions(gas)
-        
+
             cj_speeds_temp = sd2.detonations.calculate_cj_speed(initial_pressure,
                                                                initial_temperature,
                                                                species_mole_fractions,
@@ -87,25 +89,27 @@ if __name__ == "__main__":
             print('There was a CanteraError')
         except ZeroDivisionError:
             print('There was a zero division error')
-            
+
 #    fit_func = lambda x, a, b, c: a * x ** b + c
 #    
 #    fit_vals, fit_stats = scipy.optimize.curve_fit(fit_func, phis, vels)
-    
-    font_size = 26
-    marker_size = 14
+
+    font_size = 20
+    marker_size = font_size-2
     fig, ax = plt.subplots()
-#    ax.fill_between(cj_speeds.keys(), cj_speeds.values(),
-#                    [0.85*x for x in list(cj_speeds.values())], label='Caclulated')
+    # ax.fill_between(sorted([x[0] for x in cj_speeds.items()]),
+    #         sorted([x[1]['cj speed']for x in cj_speeds.items()]),
+    #                sorted([0.9*x[1]['cj speed']for x in cj_speeds.items()]), label='90 % Caclulated CJ', alpha=0.25)
     ax.plot(phis, vels, '.', label='Experimental', markersize=marker_size,
             markerfacecolor='none')
     ax.plot(sorted([x[0] for x in cj_speeds.items()]),
             sorted([x[1]['cj speed']for x in cj_speeds.items()]), '--', label='Caclulated CJ',
             markersize=marker_size)
-#    ax.plot(phis, [fit_func(*([x] + fit_vals.tolist())) for x in phis], 'o')
+    # ax.plot(phis, [fit_func(*([x] + fit_vals.tolist())) for x in phis], 'o')
     ax.set_ylabel('Detonation Velocity (m/s)', fontsize=font_size)
     ax.set_xlabel('Equivalence Ratio ($\Phi$)', fontsize=font_size)
     ax.tick_params(labelsize=font_size-3)
     ax.legend(fontsize=font_size-6)
+    fig.tight_layout()
     fig.show()
             

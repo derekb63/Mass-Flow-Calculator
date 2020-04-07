@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # [pd1, pd2, pd3, pd4] = signal_plot(PDname, method='max')
 #    data = signal_plot(method='diff')
 #     PDname = 'F:\\Oxygen_Data\\09_03_2019\\test021C_09032019.tdms'
-    PDname = 'F:\\Oxygen_Data\\cal002.tdms'
+    PDname = 'C:\\Users\\derek\\Desktop\\Feb 14\\Test 1\\PD.tdms'
     data_file = TdmsFile(PDname)
     test_names = data_file.groups()
     pd_data = []
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         pd_data.append([data_file.group_channels(test)[x] for x in ch_idx])
 #    fft_plotter(pd_data[0][0].data)
 #    fft_plotter(pd_data[0][1].data)
-#    plt.plot([x.data for x in pd_data[0]])
+#     plt.plot([x.data for x in pd_data[0]])
         
 #    idx = 0; plt.plot(pd_data[idx][:].data)
 #    test_groups = data_file.groups()

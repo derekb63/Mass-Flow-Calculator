@@ -116,11 +116,13 @@ def mass_flow(k, R, MW, rho, A_orifice, A_tube, P_u,
               P_d=101325, T_avg=298, C_d=0.99):
 
     if P_u/P_d >= ((k+1)/2)**((k)/(k-1)):
+        print('Sonic')
         # sonic throat condition
         m_dot = A_orifice * P_u * k * C_d * \
             ((2/(k+1))**((k+1)/(k-1)))**(0.5)\
             / ((k*(R/MW)*T_avg))**(0.5)
     else:
+        print('Subsonic')
         # subsonic throat condition
         m_dot = rho * A_orifice * C_d \
                 * ((2*(P_u-P_d))/(rho*(1-(A_orifice/A_tube)**2)))**(0.5)
